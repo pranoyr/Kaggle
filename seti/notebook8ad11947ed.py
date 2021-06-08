@@ -472,12 +472,8 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		data, targets = data.to(device), targets.to(device)
 
 		outputs =  model(data)
-		weights = torch.tensor([0.2, 0.8])
 		# loss = criterion(outputs, targets.unsqueeze(1))
-		print(targets.shape)
-		print(outputs.shape)
 		loss = criterion(outputs, targets)
-		loss = (loss * weights).mean()
 
 		acc = accuracy(outputs, targets)
 		losses.update(loss.item(), data.size(0))
@@ -562,7 +558,9 @@ if resume_path:
 model.to(device)
 
 # criterion = nn.BCELoss()
-criterion = nn.CrossEntropyLoss(reduction='none')
+weights = [0.2, 0.8]
+weights = torch.FloatTensor(weights).cuda()	
+criterion = nn.CrossEntropyLoss(reduction='none', weight=weights)
 optimizer = optim.Adam(model.parameters(), weight_decay=0)
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
