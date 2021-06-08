@@ -459,8 +459,8 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
    
 	model.train()
 	
-	losses = AverageMeter('Loss', ':.4e')
-	accuracies = AverageMeter('Acc', ':6.2f')
+	losses = AverageMeter('Loss', ':.2f')
+	accuracies = AverageMeter('Acc', ':.2f')
 	progress = ProgressMeter(
         len(data_loader),
         [losses, accuracies],
