@@ -303,7 +303,7 @@ class ResNet(nn.Module):
 		self.layer4 = self._make_layer(block, 512, layers[3], stride=2, att_type=att_type)
 
 		self.fc = nn.Linear(512 * block.expansion, num_classes)
-		self.sigmoid = nn.Sigmoid()
+		# self.sigmoid = nn.Sigmoid()
 
 		init.kaiming_normal(self.fc.weight)
 		for key in self.state_dict():
@@ -362,7 +362,7 @@ class ResNet(nn.Module):
 			x = F.avg_pool2d(x, 4)
 		x = x.view(x.size(0), -1)
 		x = self.fc(x)
-		x = self.sigmoid(x)
+		# x = self.sigmoid(x)
 		return x
 
 def ResidualNet(network_type, depth, num_classes, att_type):
@@ -472,7 +472,10 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		data, targets = data.to(device), targets.to(device)
 
 		outputs =  model(data)
-		loss = criterion(outputs, targets.unsqueeze(1))
+		weights = torch.tensor([0.2, 0.8])
+		# loss = criterion(outputs, targets.unsqueeze(1))
+		loss = criterion(outputs, targets)
+		loss = (loss * weights).mean()
 
 		acc = accuracy(outputs, targets)
 		losses.update(loss.item(), data.size(0))
@@ -547,7 +550,7 @@ print(f'Number of training examples: {len(train_loader.dataset)}')
 # tensorboard
 summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 # define model
-model = ResidualNet("ImageNet", 101, 1, "CBAM")
+model = ResidualNet("ImageNet", 101, 2, "CBAM")
 if resume_path:
 	checkpoint = torch.load(resume_path)
 	model.load_state_dict(checkpoint['model_state_dict'])
@@ -556,7 +559,8 @@ if resume_path:
 	start_epoch = epoch + 1
 model.to(device)
 
-criterion = nn.BCELoss()
+# criterion = nn.BCELoss()
+criterion = nn.CrossEntropyLoss(reduction='none')
 optimizer = optim.Adam(model.parameters(), weight_decay=0)
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
