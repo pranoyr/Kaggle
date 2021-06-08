@@ -603,6 +603,3 @@ for epoch in range(start_epoch, 100):
 
 # In[ ]:
 
-
-
-
