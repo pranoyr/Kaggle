@@ -544,7 +544,7 @@ print(f'Number of training examples: {len(train_loader.dataset)}')
 # tensorboard
 summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 # define model
-model = ResidualNet("ImageNet", 101, 2, "CBAM")
+model = ResidualNet("ImageNet", 101, 1, "CBAM")
 if resume_path:
 	checkpoint = torch.load(resume_path)
 	model.load_state_dict(checkpoint['model_state_dict'])
@@ -553,7 +553,7 @@ if resume_path:
 	start_epoch = epoch + 1
 model.to(device)
 
-criterion = nn.CrossEntropyLoss()
+criterion = nn.BCELoss()
 optimizer = optim.Adam(model.parameters(), weight_decay=wt_decay)
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
