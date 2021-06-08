@@ -49,7 +49,8 @@ class SETIDataset(data.Dataset):
 		'Generates one sample of data'
 		# ---- Get Inputs ----
 		x = np.load(f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
-		x = self.transform(torch.from_numpy(x))
+		# x = self.transform(torch.from_numpy(x))
+        x = torch.from_numpy(x)
 
 		# ---- Get Labels ----
 		label = self.data[index][1]
