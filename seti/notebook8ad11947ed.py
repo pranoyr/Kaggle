@@ -474,6 +474,8 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		outputs =  model(data)
 		weights = torch.tensor([0.2, 0.8])
 		# loss = criterion(outputs, targets.unsqueeze(1))
+		print(targets)
+		print(outputs)
 		loss = criterion(outputs, targets)
 		loss = (loss * weights).mean()
 
