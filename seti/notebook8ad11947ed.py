@@ -53,7 +53,7 @@ class SETIDataset(data.Dataset):
 
 		# ---- Get Labels ----
 		label = self.data[index][1]
-		target = torch.tensor(label)
+		target = torch.tensor(label).unsqueeze(1)
 		return x.type(torch.FloatTensor), target.type(torch.LongTensor)
 
 
