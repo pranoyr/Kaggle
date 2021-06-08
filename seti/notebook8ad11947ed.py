@@ -302,6 +302,7 @@ class ResNet(nn.Module):
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2, att_type=att_type)
 
         self.fc = nn.Linear(512 * block.expansion, num_classes)
+        self.sigmoid = nn.Sigmoid()
 
         init.kaiming_normal(self.fc.weight)
         for key in self.state_dict():
@@ -360,6 +361,7 @@ class ResNet(nn.Module):
             x = F.avg_pool2d(x, 4)
         x = x.view(x.size(0), -1)
         x = self.fc(x)
+        x = self.sigmoid(x)
         return x
 
 def ResidualNet(network_type, depth, num_classes, att_type):
@@ -382,11 +384,11 @@ def ResidualNet(network_type, depth, num_classes, att_type):
     return model
 
 
-if (__name__=='__main__'):
-    net = ResidualNet("ImageNet", 18, 2, att_type='CBAM')
-    x  = torch.randn(32, 6, 224,224)
-    output = net(x)
-    print(output.size())
+# if (__name__=='__main__'):
+#     net = ResidualNet("ImageNet", 18, 2, att_type='CBAM')
+#     x  = torch.randn(32, 6, 224,224)
+#     output = net(x)
+#     print(output.size())
 
 
 # In[ ]:
