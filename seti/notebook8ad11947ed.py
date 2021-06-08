@@ -557,7 +557,7 @@ if resume_path:
 model.to(device)
 
 criterion = nn.BCELoss()
-optimizer = optim.Adam(model.parameters(), weight_decay=wt_decay)
+optimizer = optim.Adam(model.parameters(), weight_decay=0)
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
 th = 100000
