@@ -560,7 +560,7 @@ model.to(device)
 # criterion = nn.BCELoss()
 weights = [0.2, 0.8]
 weights = torch.FloatTensor(weights).cuda()	
-criterion = nn.CrossEntropyLoss(reduction='none', weight=weights)
+criterion = nn.CrossEntropyLoss(weight=weights)
 optimizer = optim.Adam(model.parameters(), weight_decay=0)
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
