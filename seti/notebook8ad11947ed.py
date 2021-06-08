@@ -53,7 +53,7 @@ class SETIDataset(data.Dataset):
 
 		# ---- Get Labels ----
 		label = self.data[index][1]
-		target = torch.tensor([label]).unsqueeze(1)
+		target = torch.tensor(label)
 		return x.type(torch.FloatTensor), target.type(torch.LongTensor)
 
 
@@ -473,7 +473,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		outputs =  model(data)
 		loss = criterion(outputs, targets)
 
-		acc = accuracy(outputs, targets)
+		acc = accuracy(outputs, targets.unsqueeze(1))
 		losses.update(loss.item(), data.size(0))
 		accuracies.update(acc[0].item(),  data.size(0))
 
