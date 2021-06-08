@@ -471,7 +471,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		data, targets = data.to(device), targets.to(device)
 
 		outputs =  model(data)
-		loss = criterion(outputs, targets.unsqueeze(1)
+		loss = criterion(outputs, targets.unsqueeze(1))
 
 		acc = accuracy(outputs, targets))
 		losses.update(loss.item(), data.size(0))
