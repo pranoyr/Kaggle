@@ -54,7 +54,7 @@ class SETIDataset(data.Dataset):
 		# ---- Get Labels ----
 		label = self.data[index][1]
 		target = torch.tensor(label)
-		return x.type(torch.FloatTensor), target.type(torch.LongTensor)
+		return x.type(torch.FloatTensor), target.type(torch.FloatTensor)
 
 
 # root_dir = '/kaggle/input/seti-breakthrough-listen/train'
