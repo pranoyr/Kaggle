@@ -486,7 +486,7 @@ class AverageMeter1:
 		# For each class
 		self.name = name
 		self.fmt = fmt
-		self.reset()
+		# self.reset()
 		self.precision = dict()
 		self.recall = dict()
 		self.average_precision = dict()
