@@ -576,7 +576,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 		outputs = model(data)
 		o = nn.Softmax(dim=1)(outputs)
-		o = torch.argmax(o, dim=1) == 0
+		o = torch.argmax(o, dim=1)
 		print(o)
 
 		print()
