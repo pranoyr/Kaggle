@@ -580,7 +580,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 		# acc = accuracy(outputs, targets)
 		losses.update(loss.item(), data.size(0))
-		metrics.update(nn.Softmax(outputs, dim=1), targets)
+		metrics.update(nn.Softmax(dim=1)(outputs), targets)
 		# accuracies.update(acc[0].item(),  data.size(0))
 
 		optimizer.zero_grad()
