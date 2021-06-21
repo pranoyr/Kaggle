@@ -510,7 +510,6 @@ class AverageMeter1:
 		# self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
 		# 	targets.ravel(), preds.ravel())
 
-
 		for i in range(self.num_classes):
 			self.precision[i], self.recall[i], _ = precision_recall_curve(
 				targets[:, i], preds[:, i])
@@ -519,6 +518,10 @@ class AverageMeter1:
 
 		self.class_0 = self.average_precision[0]
 		self.class_1 = self.average_precision[1]
+
+		self.average_precision["micro"] = average_precision_score(targets, preds,
+																  average="micro")
+		self.avg = self.average_precision["micro"]
 
 	def __str__(self):
 		fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
