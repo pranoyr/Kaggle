@@ -637,6 +637,12 @@ print(f'Number of training examples: {len(train_loader.dataset)}')
 summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 # define model
 model = ResidualNet("ImageNet", 101, 2, "CBAM")
+
+if torch.cuda.device_count() > 1:
+  print("Let's use", torch.cuda.device_count(), "GPUs!")
+  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+  model = nn.DataParallel(model)
+
 if resume_path:
 	checkpoint = torch.load(resume_path)
 	model.load_state_dict(checkpoint['model_state_dict'])
@@ -644,6 +650,8 @@ if resume_path:
 	print("Model Restored from Epoch {}".format(epoch))
 	start_epoch = epoch + 1
 model.to(device)
+
+
 
 # criterion = nn.BCELoss()
 weights = [0.02, 0.98]
