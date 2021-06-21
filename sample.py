@@ -32,6 +32,13 @@ avg.update(1.2, 32)
 print(avg)
 
 
+import torch
+
+target = torch.tensor([2,4,3])
+one_hot = torch.nn.functional.one_hot(target, num_classes=5)
+
+print(one_hot)
+
 
 
 

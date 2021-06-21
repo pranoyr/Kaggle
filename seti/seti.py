@@ -495,6 +495,7 @@ class AverageMeter1:
 		self.num_classes = num_classes
 
 	def update(self, outputs, targets):
+		targets = torch.nn.functional.one_hot(targets, num_classes=self.num_classes)
 		self.y.append(outputs.detach().cpu())
 		self.gt.append(targets.detach().cpu())
 
@@ -503,8 +504,7 @@ class AverageMeter1:
 		preds = preds.numpy()
 		targets = targets.numpy()
 
-		print(preds.shape)
-
+	
 		# A "micro-average": quantifying score on all classes jointly
 		self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
 			targets.ravel(), preds.ravel())
