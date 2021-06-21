@@ -482,8 +482,11 @@ class AverageMeter1:
 
 	"""
 
-	def __init__(self, num_classes):
+	def __init__(self, name, fmt=':f', num_classes=2):
 		# For each class
+		self.name = name
+		self.fmt = fmt
+		self.reset()
 		self.precision = dict()
 		self.recall = dict()
 		self.average_precision = dict()
