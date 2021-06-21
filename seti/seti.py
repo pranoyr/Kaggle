@@ -522,7 +522,6 @@ class AverageMeter1:
 		self.average_precision["micro"] = average_precision_score(targets, preds,
 																  average="micro")
 		self.avg = self.average_precision["micro"]
-		print(self.avg)
 
 	def __str__(self):
 		fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
