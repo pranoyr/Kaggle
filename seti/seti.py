@@ -572,6 +572,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
 		data, targets = data.to(device), targets.to(device)
+		print(targets)
 
 		outputs = model(data)
 		# loss = criterion(outputs, targets.unsqueeze(1))
@@ -601,7 +602,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 resume_path = None
 start_epoch = 1
 wt_decay = 0.00001
-batch_size = 64
+batch_size = 32
 root_dir = '/home/neuroplex/Kaggle/seti/train'
 train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
 
