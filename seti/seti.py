@@ -504,6 +504,9 @@ class AverageMeter1:
 		preds = preds.numpy()
 		targets = targets.numpy()
 
+		print(preds)
+		print(targets)
+
 	
 		# A "micro-average": quantifying score on all classes jointly
 		self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
