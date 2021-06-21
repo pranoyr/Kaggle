@@ -517,20 +517,11 @@ class AverageMeter1:
 			self.average_precision[i] = average_precision_score(
 				targets[:, i], preds[:, i])
 
-		# print(self.average_precision[i])
-		print(self.average_precision)
-
-
-		# self.prec = self.precision["micro"].item()
-		# self.rec = self.recall["micro"].item()
-		# self.average_precision["micro"] = average_precision_score(targets, preds,
-		# 														  average="micro")
-		# self.avg = self.average_precision["micro"].item()
-
-		# print(self.avg)
+		self.class_0 = self.average_precision[0]
+		self.class_1 = self.average_precision[0]
 
 	def __str__(self):
-		fmtstr = '{name} {prec' + self.fmt + '} ({rec' + self.fmt + '}) ({avg' + self.fmt + '})'
+		fmtstr = '{name} {class_0' + self.fmt + '} ({class_1' + self.fmt + '})'
 		return fmtstr.format(**self.__dict__)
 
 		
@@ -568,7 +559,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 	model.train()
 
-	metrics = AverageMeter1('Prec, Rec, AP', ':.2f')
+	metrics = AverageMeter1('precision')
 	losses = AverageMeter2('losses', ':.2f')
 	progress = ProgressMeter(
 		len(data_loader),
