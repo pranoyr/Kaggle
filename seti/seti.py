@@ -508,6 +508,8 @@ class AverageMeter1:
 		# A "micro-average": quantifying score on all classes jointly
 		self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
 			targets.ravel(), preds.ravel())
+
+		print(self.precision["micro"])
 		self.prec = self.precision["micro"].item()
 		self.rec = self.recall["micro"].item()
 		self.average_precision["micro"] = average_precision_score(targets, preds,
