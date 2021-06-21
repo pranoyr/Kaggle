@@ -504,15 +504,28 @@ class AverageMeter1:
 		preds = preds.numpy()
 		targets = targets.numpy()
 
-		print(preds)
-		print(targets)
-
+		
 	
 		# A "micro-average": quantifying score on all classes jointly
-		self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
-			targets.ravel(), preds.ravel())
+		# self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
+		# 	targets.ravel(), preds.ravel())
 
-		# print(self.precision["micro"])
+
+		for i in range(self.num_classes):
+			self.precision[i], self.recall[i], _ = precision_recall_curve(
+				targets[:, i], preds[:, i])
+			self.average_precision[i] = average_precision_score(
+				targets[:, i], preds[:, i])
+
+		print(self.precision)
+
+
+
+
+
+
+
+		print(self.precision["micro"])
 		# self.prec = self.precision["micro"].item()
 		# self.rec = self.recall["micro"].item()
 		self.average_precision["micro"] = average_precision_score(targets, preds,
