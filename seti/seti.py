@@ -517,15 +517,9 @@ class AverageMeter1:
 			self.average_precision[i] = average_precision_score(
 				targets[:, i], preds[:, i])
 
-		print(self.precision)
+		print(self.average_precision[i])
 
 
-
-
-
-
-
-		print(self.precision["micro"])
 		# self.prec = self.precision["micro"].item()
 		# self.rec = self.recall["micro"].item()
 		self.average_precision["micro"] = average_precision_score(targets, preds,
