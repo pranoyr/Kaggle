@@ -660,7 +660,7 @@ model.to(device)
 
 
 # criterion = nn.BCELoss()
-weights = [0, 10]
+weights = [0.1, 0.9]
 weights = torch.FloatTensor(weights).cuda()
 criterion = nn.CrossEntropyLoss(weight=weights)
 optimizer = optim.Adam(model.parameters(), weight_decay=0)
