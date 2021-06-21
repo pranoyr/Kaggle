@@ -8,14 +8,30 @@
 # It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
 # For example, here's several helpful packages to load
 
-import numpy as np # linear algebra
-import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
+from torch.optim import lr_scheduler
+from torch.nn import BCEWithLogitsLoss
+import numpy as np
+import random
+import tensorboardX
+import argparse
+from torchvision.models import resnet18
+import torchvision.datasets as datasets
+import torchvision.transforms as transforms
+import torch.optim as optim
+from torch.nn import init
+import torch.nn.functional as F
+import torch.nn as nn
+import math
+import numpy as np  # linear algebra
+import pandas as pd  # data processing, CSV file I/O (e.g. pd.read_csv)
 
 import os
 import pandas as pd
 from torchvision import datasets, transforms
 from torch.utils import data
 import torch
+from sklearn.metrics import precision_recall_curve
+from sklearn.metrics import average_precision_score
 
 
 # train_annot = pd.read_csv(train_dir)
@@ -48,7 +64,8 @@ class SETIDataset(data.Dataset):
 	def __getitem__(self, index):
 		'Generates one sample of data'
 		# ---- Get Inputs ----
-		x = np.load(f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
+		x = np.load(
+			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
 		# x = self.transform(torch.from_numpy(x))
 		x = torch.from_numpy(x)
 
@@ -63,9 +80,8 @@ class SETIDataset(data.Dataset):
 # a = SETIDataset(root_dir, train_csv)
 # print(a.__getitem__(0)[0].shape)
 
-		
 
-# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All" 
+# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
 # You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
 
 
@@ -77,17 +93,15 @@ class SETIDataset(data.Dataset):
 # tensor([0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408], device='cuda:0',
 #        dtype=torch.float16)
 
-import torch
-import math
-import torch.nn as nn
-import torch.nn.functional as F
 
 class BasicConv(nn.Module):
 	def __init__(self, in_planes, out_planes, kernel_size, stride=1, padding=0, dilation=1, groups=1, relu=True, bn=True, bias=False):
 		super(BasicConv, self).__init__()
 		self.out_channels = out_planes
-		self.conv = nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding, dilation=dilation, groups=groups, bias=bias)
-		self.bn = nn.BatchNorm2d(out_planes,eps=1e-5, momentum=0.01, affine=True) if bn else None
+		self.conv = nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size,
+							  stride=stride, padding=padding, dilation=dilation, groups=groups, bias=bias)
+		self.bn = nn.BatchNorm2d(out_planes, eps=1e-5,
+								 momentum=0.01, affine=True) if bn else None
 		self.relu = nn.ReLU() if relu else None
 
 	def forward(self, x):
@@ -98,9 +112,11 @@ class BasicConv(nn.Module):
 			x = self.relu(x)
 		return x
 
+
 class Flatten(nn.Module):
 	def forward(self, x):
 		return x.view(x.size(0), -1)
+
 
 class ChannelGate(nn.Module):
 	def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max']):
@@ -111,32 +127,38 @@ class ChannelGate(nn.Module):
 			nn.Linear(gate_channels, gate_channels // reduction_ratio),
 			nn.ReLU(),
 			nn.Linear(gate_channels // reduction_ratio, gate_channels)
-			)
+		)
 		self.pool_types = pool_types
+
 	def forward(self, x):
 		channel_att_sum = None
 		for pool_type in self.pool_types:
-			if pool_type=='avg':
-				avg_pool = F.avg_pool2d( x, (x.size(2), x.size(3)), stride=(x.size(2), x.size(3)))
-				channel_att_raw = self.mlp( avg_pool )
-			elif pool_type=='max':
-				max_pool = F.max_pool2d( x, (x.size(2), x.size(3)), stride=(x.size(2), x.size(3)))
-				channel_att_raw = self.mlp( max_pool )
-			elif pool_type=='lp':
-				lp_pool = F.lp_pool2d( x, 2, (x.size(2), x.size(3)), stride=(x.size(2), x.size(3)))
-				channel_att_raw = self.mlp( lp_pool )
-			elif pool_type=='lse':
+			if pool_type == 'avg':
+				avg_pool = F.avg_pool2d(
+					x, (x.size(2), x.size(3)), stride=(x.size(2), x.size(3)))
+				channel_att_raw = self.mlp(avg_pool)
+			elif pool_type == 'max':
+				max_pool = F.max_pool2d(
+					x, (x.size(2), x.size(3)), stride=(x.size(2), x.size(3)))
+				channel_att_raw = self.mlp(max_pool)
+			elif pool_type == 'lp':
+				lp_pool = F.lp_pool2d(
+					x, 2, (x.size(2), x.size(3)), stride=(x.size(2), x.size(3)))
+				channel_att_raw = self.mlp(lp_pool)
+			elif pool_type == 'lse':
 				# LSE pool only
 				lse_pool = logsumexp_2d(x)
-				channel_att_raw = self.mlp( lse_pool )
+				channel_att_raw = self.mlp(lse_pool)
 
 			if channel_att_sum is None:
 				channel_att_sum = channel_att_raw
 			else:
 				channel_att_sum = channel_att_sum + channel_att_raw
 
-		scale = F.sigmoid( channel_att_sum ).unsqueeze(2).unsqueeze(3).expand_as(x)
+		scale = F.sigmoid(channel_att_sum).unsqueeze(
+			2).unsqueeze(3).expand_as(x)
 		return x * scale
+
 
 def logsumexp_2d(tensor):
 	tensor_flatten = tensor.view(tensor.size(0), tensor.size(1), -1)
@@ -144,29 +166,36 @@ def logsumexp_2d(tensor):
 	outputs = s + (tensor_flatten - s).exp().sum(dim=2, keepdim=True).log()
 	return outputs
 
+
 class ChannelPool(nn.Module):
 	def forward(self, x):
-		return torch.cat( (torch.max(x,1)[0].unsqueeze(1), torch.mean(x,1).unsqueeze(1)), dim=1 )
+		return torch.cat((torch.max(x, 1)[0].unsqueeze(1), torch.mean(x, 1).unsqueeze(1)), dim=1)
+
 
 class SpatialGate(nn.Module):
 	def __init__(self):
 		super(SpatialGate, self).__init__()
 		kernel_size = 7
 		self.compress = ChannelPool()
-		self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(kernel_size-1) // 2, relu=False)
+		self.spatial = BasicConv(2, 1, kernel_size, stride=1, padding=(
+			kernel_size-1) // 2, relu=False)
+
 	def forward(self, x):
 		x_compress = self.compress(x)
 		x_out = self.spatial(x_compress)
-		scale = F.sigmoid(x_out) # broadcasting
+		scale = F.sigmoid(x_out)  # broadcasting
 		return x * scale
+
 
 class CBAM(nn.Module):
 	def __init__(self, gate_channels, reduction_ratio=16, pool_types=['avg', 'max'], no_spatial=False):
 		super(CBAM, self).__init__()
-		self.ChannelGate = ChannelGate(gate_channels, reduction_ratio, pool_types)
-		self.no_spatial=no_spatial
+		self.ChannelGate = ChannelGate(
+			gate_channels, reduction_ratio, pool_types)
+		self.no_spatial = no_spatial
 		if not no_spatial:
 			self.SpatialGate = SpatialGate()
+
 	def forward(self, x):
 		x_out = self.ChannelGate(x)
 		if not self.no_spatial:
@@ -177,17 +206,14 @@ class CBAM(nn.Module):
 # In[ ]:
 
 
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import math
-from torch.nn import init
 # from bam import *
+
 
 def conv3x3(in_planes, out_planes, stride=1):
 	"3x3 convolution with padding"
 	return nn.Conv2d(in_planes, out_planes, kernel_size=3, stride=stride,
 					 padding=1, bias=False)
+
 
 class BasicBlock(nn.Module):
 	expansion = 1
@@ -203,7 +229,7 @@ class BasicBlock(nn.Module):
 		self.stride = stride
 
 		if use_cbam:
-			self.cbam = CBAM( planes, 16 )
+			self.cbam = CBAM(planes, 16)
 		else:
 			self.cbam = None
 
@@ -228,6 +254,7 @@ class BasicBlock(nn.Module):
 
 		return out
 
+
 class Bottleneck(nn.Module):
 	expansion = 4
 
@@ -245,7 +272,7 @@ class Bottleneck(nn.Module):
 		self.stride = stride
 
 		if use_cbam:
-			self.cbam = CBAM( planes * 4, 16 )
+			self.cbam = CBAM(planes * 4, 16)
 		else:
 			self.cbam = None
 
@@ -274,40 +301,47 @@ class Bottleneck(nn.Module):
 
 		return out
 
+
 class ResNet(nn.Module):
 	def __init__(self, block, layers,  network_type, num_classes, att_type=None):
 		self.inplanes = 64
 		super(ResNet, self).__init__()
 		self.network_type = network_type
-		# different model config between ImageNet and CIFAR 
+		# different model config between ImageNet and CIFAR
 		if network_type == "ImageNet":
-			self.conv1 = nn.Conv2d(6, 64, kernel_size=7, stride=2, padding=3, bias=False)
+			self.conv1 = nn.Conv2d(6, 64, kernel_size=7,
+								   stride=2, padding=3, bias=False)
 			self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 			self.avgpool = nn.AvgPool2d(7)
 		else:
-			self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
+			self.conv1 = nn.Conv2d(3, 64, kernel_size=3,
+								   stride=1, padding=1, bias=False)
 
 		self.bn1 = nn.BatchNorm2d(64)
 		self.relu = nn.ReLU(inplace=True)
 
-		if att_type=='BAM':
+		if att_type == 'BAM':
 			self.bam1 = BAM(64*block.expansion)
 			self.bam2 = BAM(128*block.expansion)
 			self.bam3 = BAM(256*block.expansion)
 		else:
 			self.bam1, self.bam2, self.bam3 = None, None, None
 
-		self.layer1 = self._make_layer(block, 64,  layers[0], att_type=att_type)
-		self.layer2 = self._make_layer(block, 128, layers[1], stride=2, att_type=att_type)
-		self.layer3 = self._make_layer(block, 256, layers[2], stride=2, att_type=att_type)
-		self.layer4 = self._make_layer(block, 512, layers[3], stride=2, att_type=att_type)
+		self.layer1 = self._make_layer(
+			block, 64,  layers[0], att_type=att_type)
+		self.layer2 = self._make_layer(
+			block, 128, layers[1], stride=2, att_type=att_type)
+		self.layer3 = self._make_layer(
+			block, 256, layers[2], stride=2, att_type=att_type)
+		self.layer4 = self._make_layer(
+			block, 512, layers[3], stride=2, att_type=att_type)
 
 		self.fc = nn.Linear(512 * block.expansion, num_classes)
 		# self.sigmoid = nn.Sigmoid()
 
 		init.kaiming_normal(self.fc.weight)
 		for key in self.state_dict():
-			if key.split('.')[-1]=="weight":
+			if key.split('.')[-1] == "weight":
 				if "conv" in key:
 					init.kaiming_normal(self.state_dict()[key], mode='fan_out')
 				if "bn" in key:
@@ -315,7 +349,7 @@ class ResNet(nn.Module):
 						self.state_dict()[key][...] = 0
 					else:
 						self.state_dict()[key][...] = 1
-			elif key.split(".")[-1]=='bias':
+			elif key.split(".")[-1] == 'bias':
 				self.state_dict()[key][...] = 0
 
 	def _make_layer(self, block, planes, blocks, stride=1, att_type=None):
@@ -328,10 +362,12 @@ class ResNet(nn.Module):
 			)
 
 		layers = []
-		layers.append(block(self.inplanes, planes, stride, downsample, use_cbam=att_type=='CBAM'))
+		layers.append(block(self.inplanes, planes, stride,
+					  downsample, use_cbam=att_type == 'CBAM'))
 		self.inplanes = planes * block.expansion
 		for i in range(1, blocks):
-			layers.append(block(self.inplanes, planes, use_cbam=att_type=='CBAM'))
+			layers.append(block(self.inplanes, planes,
+						  use_cbam=att_type == 'CBAM'))
 
 		return nn.Sequential(*layers)
 
@@ -365,22 +401,29 @@ class ResNet(nn.Module):
 		# x = self.sigmoid(x)
 		return x
 
+
 def ResidualNet(network_type, depth, num_classes, att_type):
 
-	assert network_type in ["ImageNet", "CIFAR10", "CIFAR100"], "network type should be ImageNet or CIFAR10 / CIFAR100"
-	assert depth in [18, 34, 50, 101], 'network depth should be 18, 34, 50 or 101'
+	assert network_type in ["ImageNet", "CIFAR10",
+							"CIFAR100"], "network type should be ImageNet or CIFAR10 / CIFAR100"
+	assert depth in [18, 34, 50,
+					 101], 'network depth should be 18, 34, 50 or 101'
 
 	if depth == 18:
-		model = ResNet(BasicBlock, [2, 2, 2, 2], network_type, num_classes, att_type)
+		model = ResNet(BasicBlock, [2, 2, 2, 2],
+					   network_type, num_classes, att_type)
 
 	elif depth == 34:
-		model = ResNet(BasicBlock, [3, 4, 6, 3], network_type, num_classes, att_type)
+		model = ResNet(BasicBlock, [3, 4, 6, 3],
+					   network_type, num_classes, att_type)
 
 	elif depth == 50:
-		model = ResNet(Bottleneck, [3, 4, 6, 3], network_type, num_classes, att_type)
+		model = ResNet(Bottleneck, [3, 4, 6, 3],
+					   network_type, num_classes, att_type)
 
 	elif depth == 101:
-		model = ResNet(Bottleneck, [3, 4, 23, 3], network_type, num_classes, att_type)
+		model = ResNet(Bottleneck, [3, 4, 23, 3],
+					   network_type, num_classes, att_type)
 
 	return model
 
@@ -393,7 +436,6 @@ def ResidualNet(network_type, depth, num_classes, att_type):
 
 
 # In[ ]:
-
 
 
 class ProgressMeter(object):
@@ -412,6 +454,7 @@ class ProgressMeter(object):
 		fmt = '{:' + str(num_digits) + 'd}'
 		return '[' + fmt + '/' + fmt.format(num_batches) + ']'
 
+
 def accuracy(output, target, topk=(1,)):
 	"""Computes the accuracy over the k top predictions for the specified values of k"""
 	with torch.no_grad():
@@ -427,10 +470,55 @@ def accuracy(output, target, topk=(1,)):
 			correct_k = correct[:k].reshape(-1).float().sum(0, keepdim=True)
 			res.append(correct_k.mul_(100.0 / batch_size))
 		return res
-	
 
-class AverageMeter(object):
+
+class AverageMeter1:
+	""" Computer precision/recall for multilabel classifcation
+
+	Return:
+			prec : Precision
+			rec  : Recall
+			avg  : Average Precision
+
+	"""
+
+	def __init__(self, num_classes):
+		# For each class
+		self.precision = dict()
+		self.recall = dict()
+		self.average_precision = dict()
+		self.gt = []
+		self.y = []
+		self.num_classes = num_classes
+
+	def update(self, outputs, targets):
+		self.y.append(outputs.detach().cpu())
+		self.gt.append(targets.detach().cpu())
+
+		preds = torch.cat(self.y)
+		targets = torch.cat(self.gt)
+		preds = preds.numpy()
+		targets = targets.numpy()
+
+		# A "micro-average": quantifying score on all classes jointly
+		self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
+			targets.ravel(), preds.ravel())
+		self.prec = self.precision["micro"]
+		self.rec = self.recall["micro"]
+		self.average_precision["micro"] = average_precision_score(targets, preds,
+																  average="micro")
+		self.avg = self.average_precision["micro"]
+
+	def __str__(self):
+		fmtstr = '{name} {prec' + self.fmt + '} ({rec' + self.fmt + '}) ({avg' + self.fmt + '})'
+		return fmtstr.format(**self.__dict__)
+
+		
+
+
+class AverageMeter2(object):
 	"""Computes and stores the average and current value"""
+
 	def __init__(self, name, fmt=':f'):
 		self.name = name
 		self.fmt = fmt
@@ -457,27 +545,28 @@ class AverageMeter(object):
 
 
 def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
-   
+
 	model.train()
-	
-	losses = AverageMeter('Loss', ':.2f')
-	accuracies = AverageMeter('Acc', ':.2f')
+
+	metrics = AverageMeter1('Prec, Rec, AP', ':.2f')
+	losses = AverageMeter2('losses', ':.2f')
 	progress = ProgressMeter(
 		len(data_loader),
-		[losses, accuracies],
+		[metrics],
 		prefix='Train: ')
 	# Training
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
 		data, targets = data.to(device), targets.to(device)
 
-		outputs =  model(data)
+		outputs = model(data)
 		# loss = criterion(outputs, targets.unsqueeze(1))
 		loss = criterion(outputs, targets)
 
-		acc = accuracy(outputs, targets)
+		# acc = accuracy(outputs, targets)
 		losses.update(loss.item(), data.size(0))
-		accuracies.update(acc[0].item(),  data.size(0))
+		metrics.update(outputs, targets)
+		# accuracies.update(acc[0].item(),  data.size(0))
 
 		optimizer.zero_grad()
 		loss.backward()
@@ -486,29 +575,14 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		# show information
 		if batch_idx % 10 == 0:
 			progress.display(batch_idx)
-		
+
 	# show information
-	print(f' * Train Loss {losses.avg:.3f}, Train Acc {accuracies.avg:.3f}')
-	return losses.avg, accuracies.avg
+	print(f' * Train Loss {losses.avg:.3f}, Ap {metrics.avg:.3f}')
+	return losses.avg, metrics.avg
 
 
 # In[ ]:
 
-
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-import torch.optim as optim
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
-from torchvision.models import resnet18
-import argparse
-import tensorboardX
-import os
-import random
-import numpy as np
-from torch.nn import BCEWithLogitsLoss
-from torch.optim import lr_scheduler
 
 resume_path = None
 start_epoch = 1
@@ -526,8 +600,8 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 transform = transforms.Compose([
-	transforms.Normalize(mean=[ 1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-		-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
+	transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
+							   -1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 ])
 
 training_data = SETIDataset(root_dir, train_csv, transform=transform)
@@ -535,9 +609,9 @@ training_data = SETIDataset(root_dir, train_csv, transform=transform)
 
 
 train_loader = torch.utils.data.DataLoader(training_data,
-											batch_size=batch_size,
-											shuffle=True,
-											num_workers=0)
+										   batch_size=batch_size,
+										   shuffle=True,
+										   num_workers=0)
 # val_loader = torch.utils.data.DataLoader(validation_data,
 # 										 batch_size=batch_size,
 # 										 shuffle=True,
@@ -559,7 +633,7 @@ model.to(device)
 
 # criterion = nn.BCELoss()
 weights = [0.1, 0.9]
-weights = torch.FloatTensor(weights).cuda()	
+weights = torch.FloatTensor(weights).cuda()
 criterion = nn.CrossEntropyLoss(weight=weights)
 optimizer = optim.Adam(model.parameters(), weight_decay=0)
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
@@ -568,12 +642,13 @@ th = 100000
 # start training
 for epoch in range(start_epoch, 100):
 	# train, test model
-	train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, epoch, device)
+	train_loss, train_acc = train_epoch(
+		model, train_loader, criterion, optimizer, epoch, device)
 	# val_loss, val_acc = val_epoch(model, val_loader, criterion, device, opt)
 	# scheduler.step(val_loss)
 
-	lr = optimizer.param_groups[0]['lr']  
-	
+	lr = optimizer.param_groups[0]['lr']
+
 	# saving weights to checkpoint
 	if (epoch) % 10 == 0:
 		# write summary
@@ -609,4 +684,3 @@ for epoch in range(start_epoch, 100):
 
 
 # In[ ]:
-
