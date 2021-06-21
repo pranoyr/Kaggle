@@ -567,7 +567,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 	progress = ProgressMeter(
 		len(data_loader),
 		[losses, metrics],
-		prefix='Train: ')
+		prefix='Epoch {epoch}: ')
 	# Training
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
