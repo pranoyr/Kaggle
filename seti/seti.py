@@ -575,6 +575,9 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		print(targets)
 
 		outputs = model(data)
+		print(outputs)
+
+		print()
 		# loss = criterion(outputs, targets.unsqueeze(1))
 		loss = criterion(outputs, targets)
 
