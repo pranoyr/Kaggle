@@ -518,10 +518,10 @@ class AverageMeter1:
 				targets[:, i], preds[:, i])
 
 		self.class_0 = self.average_precision[0]
-		self.class_1 = self.average_precision[0]
+		self.class_1 = self.average_precision[1]
 
 	def __str__(self):
-		fmtstr = '{name} {class_0' + self.fmt + '} ({class_1' + self.fmt + '})'
+		fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
 		return fmtstr.format(**self.__dict__)
 
 		
@@ -559,11 +559,11 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 	model.train()
 
-	metrics = AverageMeter1('precision')
+	metrics = AverageMeter1('Precision')
 	losses = AverageMeter2('losses', ':.2f')
 	progress = ProgressMeter(
 		len(data_loader),
-		[metrics],
+		[losses, metrics],
 		prefix='Train: ')
 	# Training
 	for batch_idx, (data, targets) in enumerate(data_loader):
