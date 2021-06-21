@@ -601,7 +601,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 resume_path = None
 start_epoch = 1
 wt_decay = 0.00001
-batch_size = 4
+batch_size = 64
 root_dir = '/home/neuroplex/Kaggle/seti/train'
 train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
 
