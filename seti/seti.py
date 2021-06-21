@@ -155,7 +155,7 @@ class ChannelGate(nn.Module):
 			else:
 				channel_att_sum = channel_att_sum + channel_att_raw
 
-		scale = F.sigmoid(channel_att_sum).unsqueeze(
+		scale = torch.sigmoid(channel_att_sum).unsqueeze(
 			2).unsqueeze(3).expand_as(x)
 		return x * scale
 
@@ -183,7 +183,7 @@ class SpatialGate(nn.Module):
 	def forward(self, x):
 		x_compress = self.compress(x)
 		x_out = self.spatial(x_compress)
-		scale = F.sigmoid(x_out)  # broadcasting
+		scale = torch.sigmoid(x_out)  # broadcasting
 		return x * scale
 
 
@@ -337,7 +337,7 @@ class ResNet(nn.Module):
 			block, 512, layers[3], stride=2, att_type=att_type)
 
 		self.fc = nn.Linear(512 * block.expansion, num_classes)
-		# self.sigmoid = nn.Sigmoid()
+		# seltorch.sigmoid = nn.Sigmoid()
 
 		init.kaiming_normal(self.fc.weight)
 		for key in self.state_dict():
@@ -398,7 +398,7 @@ class ResNet(nn.Module):
 			x = F.avg_pool2d(x, 4)
 		x = x.view(x.size(0), -1)
 		x = self.fc(x)
-		# x = self.sigmoid(x)
+		# x = seltorch.sigmoid(x)
 		return x
 
 
@@ -522,6 +522,7 @@ class AverageMeter1:
 		self.average_precision["micro"] = average_precision_score(targets, preds,
 																  average="micro")
 		self.avg = self.average_precision["micro"]
+		print(self.avg)
 
 	def __str__(self):
 		fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
