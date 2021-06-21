@@ -575,7 +575,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		print(targets)
 
 		outputs = model(data)
-		print(outputs)
+		print(nn.Softmax(dim=1)(outputs))
 
 		print()
 		# loss = criterion(outputs, targets.unsqueeze(1))
