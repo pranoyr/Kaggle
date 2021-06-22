@@ -163,3 +163,8 @@ print(weights)
 sampler = WeightedRandomSampler(torch.DoubleTensor(weights), int(num_samples))
 
 print(list(sampler))
+
+
+l = [[1,2,3],
+	[1,2,3]]
+print(l[0:2][1:2])
