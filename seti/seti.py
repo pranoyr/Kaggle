@@ -595,15 +595,12 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		# compute outputs
 		data, targets = data.to(device), targets.to(device)
 	
-
 		outputs = model(data)
-		# loss = criterion(outputs, targets.unsqueeze(1))
 		loss = criterion(outputs, targets)
 
 		# acc = accuracy(outputs, targets)
 		losses.update(loss.item(), data.size(0))
 		metrics.update(outputs, targets)
-		# accuracies.update(acc[0].item(),  data.size(0))
 
 		optimizer.zero_grad()
 		loss.backward()
@@ -621,7 +618,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 # In[ ]:
 
 
-resume_path = None
+resume_path = './set-model.path'
 start_epoch = 1
 wt_decay = 0.00001
 batch_size = 32
