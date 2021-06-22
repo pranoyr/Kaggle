@@ -653,7 +653,6 @@ sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 
 train_loader = torch.utils.data.DataLoader(training_data,
 										   batch_size=batch_size,
-										   shuffle=True,
 										   sampler = sampler,
 										   num_workers=0)
 # val_loader = torch.utils.data.DataLoader(validation_data,
