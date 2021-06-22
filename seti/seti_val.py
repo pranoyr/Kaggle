@@ -674,7 +674,7 @@ transform = transforms.Compose([
 
 _, weights = make_dataset(train_csv)
 training_data = SETIDataset(root_dir, train_csv, transform=transform)
-validation_data = SETIDataset(root_dir, train_csv, transform=transform)
+validation_data = SETIDataset(root_dir, val_csv, transform=transform)
 
 sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 train_loader = torch.utils.data.DataLoader(training_data,
