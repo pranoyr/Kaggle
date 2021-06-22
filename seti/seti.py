@@ -502,7 +502,9 @@ class AverageMeter1:
 	def update(self, outputs, targets):
 		o = nn.Softmax(dim=1)(outputs)
 		o = torch.argmax(o, dim=1)
-		print(classification_report(targets.cpu().numpy(), o.cpu().numpy(), target_names=target_names))
+		
+		self.o_list.append(o.cpu().numpy())
+		self.t_list.append(targets.cpu().numpy())
 
 		targets = torch.nn.functional.one_hot(targets, num_classes=self.num_classes)
 		self.y.append(outputs.detach().cpu())
@@ -534,6 +536,9 @@ class AverageMeter1:
 
 	def __str__(self):
 		fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
+		out = torch.cat(self.o_list)
+		targets = torch.cat(self.t_list)
+		print(classification_report(targets.numpy(), out.numpy(), target_names=target_names))
 		return fmtstr.format(**self.__dict__)
 
 		
