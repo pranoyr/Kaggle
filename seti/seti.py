@@ -505,8 +505,8 @@ class AverageMeter1:
 		o = nn.Softmax(dim=1)(outputs)
 		o = torch.argmax(o, dim=1)
 		
-		self.o_list.append(o.cpu().numpy())
-		self.t_list.append(targets.cpu().numpy())
+		self.o_list.extend(o.cpu().numpy())
+		self.t_list.extend(targets.cpu().numpy())
 
 		targets = torch.nn.functional.one_hot(targets, num_classes=self.num_classes)
 		self.y.append(outputs.detach().cpu())

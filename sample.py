@@ -32,6 +32,15 @@ avg.update(1.2, 32)
 print(avg)
 
 
+
+a = [1,2,3]
+a.extend([1,2,3.4])
+
+print(a)
+
+
+
+
 import torch
 
 target = torch.tensor([2,4,3])
