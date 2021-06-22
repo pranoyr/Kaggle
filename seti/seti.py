@@ -46,6 +46,7 @@ def make_dataset(csv_file):
 	data = pd.read_csv(csv_file)
 	data = data.values.tolist()
 	labels = np.array(data)[:, -1]
+	print(labels)
 	class_one_count = len(np.argwhere(labels==1).squeeze(1))
 	class_zero_count = len(np.argwhere(labels==0).squeeze(1))
 
