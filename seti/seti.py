@@ -45,7 +45,17 @@ from sklearn.metrics import average_precision_score
 def make_dataset(csv_file):
 	data = pd.read_csv(csv_file)
 	data = data.values.tolist()
-	return data
+	labels = np.array(data)[:, -1]
+	class_one_count = len(np.argwhere(labels==1).squeeze(1))
+	class_zero_count = len(np.argwhere(labels==0).squeeze(1))
+
+
+	class_counts = [class_zero_count, class_one_count]   # [0.1,1]
+	num_samples = sum(class_counts)
+
+	class_weights = [num_samples/class_counts[i] for i in range(len(class_counts))]
+	weights = [class_weights[labels[i]] for i in range(int(num_samples))]
+	return data, weights
 
 
 class SETIDataset(data.Dataset):
@@ -57,7 +67,7 @@ class SETIDataset(data.Dataset):
 		self.transform = transform
 		self.num_classes = num_classes
 
-		self.data = make_dataset(csv_file)
+		self.data, _ = make_dataset(csv_file)
 
 	def __len__(self):
 		'Denotes the total number of samples'
@@ -615,7 +625,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 resume_path = None
 start_epoch = 1
 wt_decay = 0.00001
-batch_size = 64
+batch_size = 32
 root_dir = '/home/neuroplex/Kaggle/seti/train'
 train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
 
@@ -632,13 +642,19 @@ transform = transforms.Compose([
 							   -1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 ])
 
+
+_, weights = make_dataset(train_csv)
 training_data = SETIDataset(root_dir, train_csv, transform=transform)
 # validation_data = get_validation_set(opt, test_transform)
 
 
+
+sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+
 train_loader = torch.utils.data.DataLoader(training_data,
 										   batch_size=batch_size,
 										   shuffle=True,
+										   sampler = sampler,
 										   num_workers=0)
 # val_loader = torch.utils.data.DataLoader(validation_data,
 # 										 batch_size=batch_size,
