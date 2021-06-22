@@ -694,7 +694,7 @@ for epoch in range(start_epoch, 100):
 	lr = optimizer.param_groups[0]['lr']
 
 	# saving weights to checkpoint
-	if (epoch) % 10 == 0:
+	if (epoch) % 1 == 0:
 		# write summary
 		summary_writer.add_scalar(
 			'losses/train_loss', train_loss, global_step=epoch)
