@@ -45,6 +45,7 @@ from sklearn.metrics import average_precision_score
 def make_dataset(csv_file):
 	data = pd.read_csv(csv_file)
 	data = data.values.tolist()
+	print(data)
 	labels = np.array(data)[:, -1]
 	print(labels)
 	class_one_count = len(np.argwhere(labels==1).squeeze(1))
