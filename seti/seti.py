@@ -49,14 +49,11 @@ def make_dataset(csv_file):
 	class_one_count = len(np.argwhere(labels==1).squeeze(1))
 	class_zero_count = len(np.argwhere(labels==0).squeeze(1))
 
-	print(class_one_count, class_zero_count)
-
 	class_counts = [class_zero_count, class_one_count]   # [0.1,1]
 	num_samples = sum(class_counts)
 
 	class_weights = [num_samples/class_counts[i] for i in range(len(class_counts))]
 	weights = [class_weights[labels[i]] for i in range(int(num_samples))]
-	print(len(weights))
 	return data, weights
 
 
