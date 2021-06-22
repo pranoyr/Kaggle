@@ -738,7 +738,7 @@ for epoch in range(start_epoch, 100):
 		summary_writer.add_scalar(
 			'losses/val_loss', val_loss, global_step=epoch)
 		summary_writer.add_scalar(
-			'accvaln_acc', val_acc, global_step=epoch)
+			'losses/val_acc', val_acc, global_step=epoch)
 
 		state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 				'optimizer_state_dict': optimizer.state_dict()}
