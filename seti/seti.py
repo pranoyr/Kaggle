@@ -12,6 +12,8 @@ from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 import numpy as np
 import random
+
+from sklearn.metrics import classification_report
 import tensorboardX
 import argparse
 from torchvision.models import resnet18
@@ -472,6 +474,9 @@ def accuracy(output, target, topk=(1,)):
 		return res
 
 
+
+
+target_names = ['class 0', 'class 1']
 class AverageMeter1:
 	""" Computer precision/recall for multilabel classifcation
 
@@ -495,6 +500,10 @@ class AverageMeter1:
 		self.num_classes = num_classes
 
 	def update(self, outputs, targets):
+		o = nn.Softmax(dim=1)(outputs)
+		o = torch.argmax(o, dim=1)
+		print(classification_report(targets.cpu().numpy(), o.cpu().numpy(), target_names=target_names))
+
 		targets = torch.nn.functional.one_hot(targets, num_classes=self.num_classes)
 		self.y.append(outputs.detach().cpu())
 		self.gt.append(targets.detach().cpu())
@@ -557,8 +566,6 @@ class AverageMeter2(object):
 
 # In[ ]:
 
-from sklearn.metrics import classification_report
-target_names = ['class 0', 'class 1']
 def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 	model.train()
@@ -576,10 +583,6 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 	
 
 		outputs = model(data)
-		o = nn.Softmax(dim=1)(outputs)
-		o = torch.argmax(o, dim=1)
-
-		print(classification_report(targets.cpu().numpy(), o.cpu().numpy(), target_names=target_names))
 		# loss = criterion(outputs, targets.unsqueeze(1))
 		loss = criterion(outputs, targets)
 
