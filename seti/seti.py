@@ -498,6 +498,8 @@ class AverageMeter1:
 		self.gt = []
 		self.y = []
 		self.num_classes = num_classes
+		self.o_list = []
+		self.t_list = []
 
 	def update(self, outputs, targets):
 		o = nn.Softmax(dim=1)(outputs)
