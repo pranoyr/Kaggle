@@ -628,6 +628,10 @@ batch_size = 32
 root_dir = '/home/neuroplex/Kaggle/seti/train'
 train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
 
+
+# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
+# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
+
 seed = 0
 random.seed(seed)
 np.random.seed(seed)
@@ -644,22 +648,14 @@ transform = transforms.Compose([
 
 _, weights = make_dataset(train_csv)
 training_data = SETIDataset(root_dir, train_csv, transform=transform)
-# validation_data = get_validation_set(opt, test_transform)
-
-
 
 sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
-
 train_loader = torch.utils.data.DataLoader(training_data,
 										   batch_size=batch_size,
 										   sampler = sampler,
 										   num_workers=0)
-# val_loader = torch.utils.data.DataLoader(validation_data,
-# 										 batch_size=batch_size,
-# 										 shuffle=True,
-# 										 num_workers=0)
+
 print(f'Number of training examples: {len(train_loader.dataset)}')
-# print(f'Number of validation examples: {len(val_loader.dataset)}')
 
 # tensorboard
 summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
@@ -680,12 +676,12 @@ if resume_path:
 model.to(device)
 
 
-
-# criterion = nn.BCELoss()
-weights = [0.1, 0.9]
-weights = torch.FloatTensor(weights).cuda()
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), weight_decay=0)
+if resume_path:
+	checkpoint = torch.load(resume_path)
+	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+		
 # scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
 th = 100000
@@ -694,9 +690,7 @@ for epoch in range(start_epoch, 100):
 	# train, test model
 	train_loss, train_acc = train_epoch(
 		model, train_loader, criterion, optimizer, epoch, device)
-	# val_loss, val_acc = val_epoch(model, val_loader, criterion, device, opt)
-	# scheduler.step(val_loss)
-
+	
 	lr = optimizer.param_groups[0]['lr']
 
 	# saving weights to checkpoint
@@ -704,21 +698,17 @@ for epoch in range(start_epoch, 100):
 		# write summary
 		summary_writer.add_scalar(
 			'losses/train_loss', train_loss, global_step=epoch)
-		# summary_writer.add_scalar(
-		# 	'losses/val_loss', val_loss, global_step=epoch)
 		summary_writer.add_scalar(
 			'acc/train_acc', train_acc, global_step=epoch)
-		# summary_writer.add_scalar(
-		# 	'acc/val_acc', val_acc, global_step=epoch)
 		summary_writer.add_scalar(
 			'lr_rate', lr, global_step=epoch)
 
-		# state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-		# 		'optimizer_state_dict': optimizer.state_dict(), 'scheduler_state_dict':scheduler.state_dict()}
-		# if val_loss < th:
-		# 	torch.save(state, os.path.join('./snapshots', 'ensemble-model.pth'))
-		# 	print("Epoch {} model saved!\n".format(epoch))
-		# 	th = val_loss
+		state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+				'optimizer_state_dict': optimizer.state_dict()}
+		
+		torch.save(state, 'seti-model.pth')
+		print("Epoch {} model saved!\n".format(epoch))
+		
 
 
 # In[ ]:
