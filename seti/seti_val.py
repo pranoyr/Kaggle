@@ -722,7 +722,7 @@ for epoch in range(start_epoch, 100):
 	train_loss, train_acc = train_epoch(
 		model, train_loader, criterion, optimizer, epoch, device)
 	val_loss, val_acc = val_epoch(
-		model, train_loader, criterion, epoch, device)
+		model, val_loader, criterion, epoch, device)
 	lr = optimizer.param_groups[0]['lr']
 
 	# saving weights to checkpoint
