@@ -42,9 +42,9 @@ from sklearn.metrics import average_precision_score
 # print(os.listdir(f"{root_dir}/0"))
 
 
-def make_dataset(csv_file):
-	data = pd.read_csv(csv_file)
-	data = data.values.tolist()
+def make_dataset(train_val_dist):
+	# data = pd.read_csv(csv_file)
+	data = train_val_dist.values.tolist()
 	labels = np.array([i[1] for i in data])
 	class_one_count = len(np.argwhere(labels==1).squeeze(1))
 	class_zero_count = len(np.argwhere(labels==0).squeeze(1))
@@ -526,11 +526,6 @@ class AverageMeter1:
 		preds = preds.numpy()
 		targets = targets.numpy()
 
-		
-	
-		# A "micro-average": quantifying score on all classes jointly
-		# self.precision["micro"], self.recall["micro"], _ = precision_recall_curve(
-		# 	targets.ravel(), preds.ravel())
 
 		for i in range(self.num_classes):
 			self.precision[i], self.recall[i], _ = precision_recall_curve(
@@ -597,14 +592,11 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 	
 
 		outputs = model(data)
-		# loss = criterion(outputs, targets.unsqueeze(1))
 		loss = criterion(outputs, targets)
 
-		# acc = accuracy(outputs, targets)
 		losses.update(loss.item(), data.size(0))
-		metrics.update(outputs, targets)
-		# accuracies.update(acc[0].item(),  data.size(0))
-
+		metrics.update(nn.Softmax(dim=1)(outputs), targets)
+	
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
@@ -625,12 +617,18 @@ resume_path = None
 start_epoch = 1
 wt_decay = 0.00001
 batch_size = 32
-root_dir = '/home/neuroplex/Kaggle/seti/train'
-train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
-
 
 # root_dir = '/kaggle/input/seti-breakthrough-listen/train'
 # train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
+root_dir = '/home/neuroplex/Kaggle/seti/train'
+train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
+
+df = pd.read_csv(train_csv)
+df['split'] = np.random.randn(df.shape[0], 1)
+msk = np.random.rand(len(df)) <= 0.8
+train_csv = df[msk]
+val_csv = df[~msk]
+
 
 seed = 0
 random.seed(seed)
@@ -648,11 +646,16 @@ transform = transforms.Compose([
 
 _, weights = make_dataset(train_csv)
 training_data = SETIDataset(root_dir, train_csv, transform=transform)
+validation_data = SETIDataset(root_dir, train_csv, transform=transform)
 
 sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 train_loader = torch.utils.data.DataLoader(training_data,
 										   batch_size=batch_size,
 										   sampler = sampler,
+										   num_workers=0)
+
+val_loader = torch.utils.data.DataLoader(validation_data,
+										   batch_size=batch_size,
 										   num_workers=0)
 
 print(f'Number of training examples: {len(train_loader.dataset)}')
@@ -690,7 +693,8 @@ for epoch in range(start_epoch, 100):
 	# train, test model
 	train_loss, train_acc = train_epoch(
 		model, train_loader, criterion, optimizer, epoch, device)
-	
+	train_loss, train_acc = train_epoch(
+		model, train_loader, criterion, optimizer, epoch, device)
 	lr = optimizer.param_groups[0]['lr']
 
 	# saving weights to checkpoint

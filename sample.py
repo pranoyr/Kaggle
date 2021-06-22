@@ -151,20 +151,22 @@ loader = DataLoader(
 # 	print(data.shape)
 # 	break
 
+import pandas as pd
+import numpy as np
 
-#Let there be 9 samples and 1 sample in class 0 and 1 respectively
-class_counts = [9.0, 1.0]   # [0.1,1]
-num_samples = sum(class_counts)
-labels = [0, 1,0,0,0,0,0, 0, 0,0] #corresponding labels of samples
+df = pd.read_csv('/Users/pranoyr/Downloads/train_labels.csv')
+df['split'] = np.random.randn(df.shape[0], 1)
 
-class_weights = [num_samples/class_counts[i] for i in range(len(class_counts))]
-weights = [class_weights[labels[i]] for i in range(int(num_samples))]
-print(weights)
-sampler = WeightedRandomSampler(torch.DoubleTensor(weights), int(num_samples))
+msk = np.random.rand(len(df)) <= 0.8
 
-print(list(sampler))
+train = df[msk]
+test = df[~msk]
+for i in [train, test]:
+	data = i.values.tolist()
+	labels = np.array([i[1] for i in data])
+	class_one_count = len(np.argwhere(labels==1).squeeze(1))
+	class_zero_count = len(np.argwhere(labels==0).squeeze(1))
 
-
-l = [[1,2,3],
-	[1,2,3]]
-print(l[0:2][1:2])
+	print(class_one_count)
+	print(class_zero_count)
+	print()
