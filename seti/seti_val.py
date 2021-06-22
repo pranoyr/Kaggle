@@ -575,6 +575,35 @@ class AverageMeter2(object):
 
 # In[ ]:
 
+
+
+def val_epoch(model, data_loader, criterion, epoch, device):
+
+	model.eval()
+
+	metrics = AverageMeter1('Precision')
+	losses = AverageMeter2('losses', ':.2f')
+	progress = ProgressMeter(
+		len(data_loader),
+		[losses, metrics],
+		prefix=f'Epoch {epoch}: ')
+	# Training
+	with torch.no_grad():
+		for batch_idx, (data, targets) in enumerate(data_loader):
+			# compute outputs
+			data, targets = data.to(device), targets.to(device)
+		
+			outputs = model(data)
+			loss = criterion(outputs, targets)
+
+			losses.update(loss.item(), data.size(0))
+			metrics.update(outputs, targets)
+		
+		# show information
+		print(f' * Val Loss {losses.avg:.3f}, Ap {metrics.avg:.3f}')
+		return losses.avg, metrics.avg
+
+
 def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 	model.train()
@@ -590,12 +619,11 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		# compute outputs
 		data, targets = data.to(device), targets.to(device)
 	
-
 		outputs = model(data)
 		loss = criterion(outputs, targets)
 
 		losses.update(loss.item(), data.size(0))
-		metrics.update(nn.Softmax(dim=1)(outputs), targets)
+		metrics.update(outputs, targets)
 	
 		optimizer.zero_grad()
 		loss.backward()
@@ -693,8 +721,8 @@ for epoch in range(start_epoch, 100):
 	# train, test model
 	train_loss, train_acc = train_epoch(
 		model, train_loader, criterion, optimizer, epoch, device)
-	train_loss, train_acc = train_epoch(
-		model, train_loader, criterion, optimizer, epoch, device)
+	val_loss, val_acc = val_epoch(
+		model, train_loader, criterion, epoch, device)
 	lr = optimizer.param_groups[0]['lr']
 
 	# saving weights to checkpoint
@@ -706,6 +734,11 @@ for epoch in range(start_epoch, 100):
 			'acc/train_acc', train_acc, global_step=epoch)
 		summary_writer.add_scalar(
 			'lr_rate', lr, global_step=epoch)
+
+		summary_writer.add_scalar(
+			'losses/val_loss', val_loss, global_step=epoch)
+		summary_writer.add_scalar(
+			'accvaln_acc', val_acc, global_step=epoch)
 
 		state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 				'optimizer_state_dict': optimizer.state_dict()}
