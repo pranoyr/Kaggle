@@ -34,7 +34,7 @@ model = ResidualNet("ImageNet", 101, 2, "CBAM")
 
 # load pretrained weights
 checkpoint = torch.load('./seti-model.pth')
-model.load_state_dict(checkpoint['state_dict'])
+model.load_state_dict(checkpoint['model_state_dict'])
 print("Model Restored")
 model.eval()
 
@@ -74,6 +74,7 @@ transform = transforms.Compose([
 l = []
 for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
+		print(file_path)
 		x = np.load(file_path)
 		x = transform(torch.from_numpy(x))
 		# compute outputs
