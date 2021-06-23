@@ -81,7 +81,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
 		print(file_path)
 		x = np.load(file_path)
-		x = transform(torch.from_numpy(x))
+		x = transform(torch.from_numpy(x)).unsqueeze(0)
 		# compute outputs
 		x = x.to(device)
 		outputs = model(x)
