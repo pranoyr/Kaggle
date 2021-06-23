@@ -696,8 +696,8 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 50, 1, "CBAM")
-	# model = vgg16(pretrained=False ,num_classes=1)
+	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = vgg16(pretrained=False ,num_classes=1)
 
 	if torch.cuda.device_count() > 1:
 		print("Let's use", torch.cuda.device_count(), "GPUs!")
