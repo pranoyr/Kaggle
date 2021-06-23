@@ -30,11 +30,17 @@ from sklearn.metrics import average_precision_score
 
 from seti_val import ResidualNet
 
+use_cuda = torch.cuda.is_available()
+device = torch.device("cuda" if use_cuda else "cpu")
+
+
 model = ResidualNet("ImageNet", 101, 2, "CBAM")
 model = nn.DataParallel(model)
 # load pretrained weights
 checkpoint = torch.load('./seti-model.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
+model.to(device)
+
 print("Model Restored")
 model.eval()
 
@@ -61,8 +67,7 @@ random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 
-use_cuda = torch.cuda.is_available()
-device = torch.device("cuda" if use_cuda else "cpu")
+
 
 transform = transforms.Compose([
 	transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
