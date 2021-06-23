@@ -735,14 +735,14 @@ def main():
 			summary_writer.add_scalar(
 				'losses/train_loss', train_loss, global_step=epoch)
 			summary_writer.add_scalar(
-				'acc/train_acc', train_acc, global_step=epoch)
+				'acc/train_roc', train_acc, global_step=epoch)
 			summary_writer.add_scalar(
 				'lr_rate', lr, global_step=epoch)
 
 			summary_writer.add_scalar(
 				'losses/val_loss', val_loss, global_step=epoch)
 			summary_writer.add_scalar(
-				'losses/val_acc', val_acc, global_step=epoch)
+				'losses/val_roc', val_acc, global_step=epoch)
 
 			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 					'optimizer_state_dict': optimizer.state_dict()}
