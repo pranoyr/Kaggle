@@ -86,7 +86,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		x = x.to(device)
 		outputs = model(x)
 		outputs = nn.Softmax(dim=1)(outputs)
-		outputs = torch.argmax(outputs, dim=1)
+		outputs = torch.argmax(outputs, dim=1).item()
 		l.append([filename, outputs])
 		print(filename,outputs)
 		
