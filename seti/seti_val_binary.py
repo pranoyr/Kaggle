@@ -598,7 +598,7 @@ def val_epoch(model, data_loader, criterion, epoch, device):
 			data, targets = data.to(device), targets.to(device)
 		
 			outputs = model(data)
-			loss = criterion(outputs, targets)
+			loss = criterion(outputs, targets.unsqueeze(1))
 
 			losses.update(loss.item(), data.size(0))
 			metrics.update(outputs, targets)
