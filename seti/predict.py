@@ -31,7 +31,7 @@ from sklearn.metrics import average_precision_score
 from seti_val import ResidualNet
 
 model = ResidualNet("ImageNet", 101, 2, "CBAM")
-
+model = nn.DataParallel(model)
 # load pretrained weights
 checkpoint = torch.load('./seti-model.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
