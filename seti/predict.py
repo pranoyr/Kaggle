@@ -33,7 +33,7 @@ from seti_val import ResidualNet
 model = ResidualNet("ImageNet", 101, 2, "CBAM")
 
 # load pretrained weights
-checkpoint = torch.load('/seti-model.pth')
+checkpoint = torch.load('./seti-model.pth')
 model.load_state_dict(checkpoint['state_dict'])
 print("Model Restored")
 model.eval()
