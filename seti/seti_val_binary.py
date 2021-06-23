@@ -717,7 +717,7 @@ def main():
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
-	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
+	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
 
 	th = -1
 	# start training
@@ -742,6 +742,8 @@ def main():
 				'losses/val_loss', val_loss, global_step=epoch)
 			summary_writer.add_scalar(
 				'losses/val_roc', val_acc, global_step=epoch)
+
+			scheduler.step(val_loss)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
