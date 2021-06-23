@@ -725,12 +725,11 @@ def main():
 		# train, test model
 		train_loss, train_acc = train_epoch(
 			model, train_loader, criterion, optimizer, epoch, device)
-		val_loss, val_acc = val_epoch(
-			model, val_loader, criterion, epoch, device)
-		lr = optimizer.param_groups[0]['lr']
 
-		# saving weights to checkpoint
+		# validate
 		if (epoch) % 1 == 0:
+			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+			lr = optimizer.param_groups[0]['lr']
 			# write summary
 			summary_writer.add_scalar(
 				'losses/train_loss', train_loss, global_step=epoch)
@@ -744,10 +743,10 @@ def main():
 			summary_writer.add_scalar(
 				'losses/val_roc', val_acc, global_step=epoch)
 
-			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-					'optimizer_state_dict': optimizer.state_dict()}
-			
 			if (val_acc > th):
+				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+						'optimizer_state_dict': optimizer.state_dict()}
+				
 				torch.save(state, 'seti-model.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
