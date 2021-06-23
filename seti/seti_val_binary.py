@@ -61,7 +61,7 @@ def make_dataset(train_val_dist):
 class SETIDataset(data.Dataset):
 	'Characterizes a dataset for PyTorch'
 
-	def __init__(self, root_dir, csv_file, num_classes=2, transform=None):
+	def __init__(self, root_dir, csv_file, num_classes=1, transform=None):
 		'Initialization'
 		self.root_dir = root_dir
 		self.transform = transform
@@ -711,7 +711,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), weight_decay=0)
+	optimizer = optim.Adam(model.parameters(), weight_decay=0.0001)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
