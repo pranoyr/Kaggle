@@ -79,7 +79,6 @@ transform = transforms.Compose([
 l = []
 for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
-		print(file_path)
 		x = np.load(file_path)
 		x = transform(torch.from_numpy(x)).unsqueeze(0)
 		# compute outputs
@@ -89,6 +88,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		outputs = nn.Softmax(dim=1)(outputs)
 		outputs = torch.argmax(outputs, dim=1)
 		l.append([filename, outputs])
+		print(filename,outputs)
 		
 df = pd.DataFrame(l)
 df.to_csv('submission.csv', index=False)
