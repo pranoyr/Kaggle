@@ -93,7 +93,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		else:
 			prob = scores.item()
 		print(label, prob)
-		l.append([filename, label])
+		l.append([filename.replace('.npy', ''), label])
 		
 df = pd.DataFrame(l)
 df.to_csv('submission.csv', index=False)
