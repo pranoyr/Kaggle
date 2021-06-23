@@ -513,7 +513,7 @@ class AverageMeter1:
 
 	def update(self, outputs, targets):
 		o = torch.sigmoid(outputs)
-		o = torch.argmax(o, dim=1)
+		# o = torch.argmax(o, dim=1)
 		
 		self.o_list.extend(o.cpu().numpy())
 		self.t_list.extend(targets.cpu().numpy())
