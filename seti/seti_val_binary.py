@@ -612,7 +612,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 	model.train()
 
-	metrics = AverageMeter1('Precision')
+	metrics = AverageMeter1('ROC')
 	losses = AverageMeter2('losses', ':.2f')
 	progress = ProgressMeter(
 		len(data_loader),
