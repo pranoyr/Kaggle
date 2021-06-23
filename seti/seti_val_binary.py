@@ -497,7 +497,7 @@ class AverageMeter1:
 
 	"""
 
-	def __init__(self, name, fmt=':f', num_classes=2):
+	def __init__(self, name, fmt=':f', num_classes=1):
 		# For each class
 		self.name = name
 		self.fmt = fmt
