@@ -640,124 +640,111 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 # In[ ]:
 
+def main():
+	resume_path = None
+	start_epoch = 1
+	wt_decay = 0.00001
+	batch_size = 32
 
-resume_path = None
-start_epoch = 1
-wt_decay = 0.00001
-batch_size = 32
+	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
+	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
+	root_dir = '/home/neuroplex/Kaggle/seti/train'
+	train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
 
-# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
-# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
-root_dir = '/home/neuroplex/Kaggle/seti/train'
-train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
-
-df = pd.read_csv(train_csv)
-df['split'] = np.random.randn(df.shape[0], 1)
-msk = np.random.rand(len(df)) <= 0.8
-train_csv = df[msk]
-val_csv = df[~msk]
-
-
-seed = 0
-random.seed(seed)
-np.random.seed(seed)
-torch.manual_seed(seed)
-
-use_cuda = torch.cuda.is_available()
-device = torch.device("cuda" if use_cuda else "cpu")
-
-transform = transforms.Compose([
-	transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-							   -1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
-])
+	df = pd.read_csv(train_csv)
+	df['split'] = np.random.randn(df.shape[0], 1)
+	msk = np.random.rand(len(df)) <= 0.8
+	train_csv = df[msk]
+	val_csv = df[~msk]
 
 
-_, weights = make_dataset(train_csv)
-training_data = SETIDataset(root_dir, train_csv, transform=transform)
-validation_data = SETIDataset(root_dir, val_csv, transform=transform)
+	seed = 0
+	random.seed(seed)
+	np.random.seed(seed)
+	torch.manual_seed(seed)
 
-sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
-train_loader = torch.utils.data.DataLoader(training_data,
-										   batch_size=batch_size,
-										   sampler = sampler,
-										   num_workers=0)
+	use_cuda = torch.cuda.is_available()
+	device = torch.device("cuda" if use_cuda else "cpu")
 
-val_loader = torch.utils.data.DataLoader(validation_data,
-										   batch_size=batch_size,
-										   num_workers=0)
-
-print(f'Number of training examples: {len(train_loader.dataset)}')
-
-# tensorboard
-summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
-# define model
-model = ResidualNet("ImageNet", 101, 2, "CBAM")
-
-if torch.cuda.device_count() > 1:
-  print("Let's use", torch.cuda.device_count(), "GPUs!")
-  # dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-  model = nn.DataParallel(model)
-
-if resume_path:
-	checkpoint = torch.load(resume_path)
-	model.load_state_dict(checkpoint['model_state_dict'])
-	epoch = checkpoint['epoch']
-	print("Model Restored from Epoch {}".format(epoch))
-	start_epoch = epoch + 1
-model.to(device)
+	transform = transforms.Compose([
+		transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
+								-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
+	])
 
 
-criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), weight_decay=0)
-if resume_path:
-	checkpoint = torch.load(resume_path)
-	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-		
-# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
+	_, weights = make_dataset(train_csv)
+	training_data = SETIDataset(root_dir, train_csv, transform=transform)
+	validation_data = SETIDataset(root_dir, val_csv, transform=transform)
 
-th = 100000
-# start training
-for epoch in range(start_epoch, 100):
-	# train, test model
-	train_loss, train_acc = train_epoch(
-		model, train_loader, criterion, optimizer, epoch, device)
-	val_loss, val_acc = val_epoch(
-		model, val_loader, criterion, epoch, device)
-	lr = optimizer.param_groups[0]['lr']
+	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+	train_loader = torch.utils.data.DataLoader(training_data,
+											batch_size=batch_size,
+											sampler = sampler,
+											num_workers=0)
 
-	# saving weights to checkpoint
-	if (epoch) % 1 == 0:
-		# write summary
-		summary_writer.add_scalar(
-			'losses/train_loss', train_loss, global_step=epoch)
-		summary_writer.add_scalar(
-			'acc/train_acc', train_acc, global_step=epoch)
-		summary_writer.add_scalar(
-			'lr_rate', lr, global_step=epoch)
+	val_loader = torch.utils.data.DataLoader(validation_data,
+											batch_size=batch_size,
+											num_workers=0)
 
-		summary_writer.add_scalar(
-			'losses/val_loss', val_loss, global_step=epoch)
-		summary_writer.add_scalar(
-			'losses/val_acc', val_acc, global_step=epoch)
+	print(f'Number of training examples: {len(train_loader.dataset)}')
 
-		state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-				'optimizer_state_dict': optimizer.state_dict()}
-		
-		torch.save(state, 'seti-model.pth')
-		print("Epoch {} model saved!\n".format(epoch))
-		
+	# tensorboard
+	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
+	# define model
+	model = ResidualNet("ImageNet", 101, 2, "CBAM")
+
+	if torch.cuda.device_count() > 1:
+		print("Let's use", torch.cuda.device_count(), "GPUs!")
+	# dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
+	model = nn.DataParallel(model)
+
+	if resume_path:
+		checkpoint = torch.load(resume_path)
+		model.load_state_dict(checkpoint['model_state_dict'])
+		epoch = checkpoint['epoch']
+		print("Model Restored from Epoch {}".format(epoch))
+		start_epoch = epoch + 1
+	model.to(device)
 
 
-# In[ ]:
+	criterion = nn.CrossEntropyLoss()
+	optimizer = optim.Adam(model.parameters(), weight_decay=0)
+	if resume_path:
+		checkpoint = torch.load(resume_path)
+		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+			
+	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
+	th = 100000
+	# start training
+	for epoch in range(start_epoch, 100):
+		# train, test model
+		train_loss, train_acc = train_epoch(
+			model, train_loader, criterion, optimizer, epoch, device)
+		val_loss, val_acc = val_epoch(
+			model, val_loader, criterion, epoch, device)
+		lr = optimizer.param_groups[0]['lr']
 
-# import cv2
-# import matplotlib.pyplot as plt
-# import numpy as np
-# # cv2.imwrite("a.jpg",np.random.random((32,32,3)))
-# img  = cv2.imread("a.jpg")
-# print(img.shape)
-# plt.imshow(img)
+		# saving weights to checkpoint
+		if (epoch) % 1 == 0:
+			# write summary
+			summary_writer.add_scalar(
+				'losses/train_loss', train_loss, global_step=epoch)
+			summary_writer.add_scalar(
+				'acc/train_acc', train_acc, global_step=epoch)
+			summary_writer.add_scalar(
+				'lr_rate', lr, global_step=epoch)
 
+			summary_writer.add_scalar(
+				'losses/val_loss', val_loss, global_step=epoch)
+			summary_writer.add_scalar(
+				'losses/val_acc', val_acc, global_step=epoch)
 
-# In[ ]:
+			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+					'optimizer_state_dict': optimizer.state_dict()}
+			
+			torch.save(state, 'seti-model.pth')
+			print("Epoch {} model saved!\n".format(epoch))
+			
+if __name__=='__main__':
+	main()
