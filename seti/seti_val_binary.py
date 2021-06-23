@@ -719,7 +719,7 @@ def main():
 			
 	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=opt.lr_patience)
 
-	th = 100000
+	th = -1
 	# start training
 	for epoch in range(start_epoch, 100):
 		# train, test model
@@ -747,8 +747,10 @@ def main():
 			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 					'optimizer_state_dict': optimizer.state_dict()}
 			
-			torch.save(state, 'seti-model.pth')
-			print("Epoch {} model saved!\n".format(epoch))
-			
+			if (val_acc > th):
+				torch.save(state, 'seti-model.pth')
+				print("Epoch {} model saved!\n".format(epoch))
+				th = val_acc
+				
 if __name__=='__main__':
 	main()
