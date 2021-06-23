@@ -410,7 +410,7 @@ class ResNet(nn.Module):
 			x = F.avg_pool2d(x, 4)
 		x = x.view(x.size(0), -1)
 		x = self.fc(x)
-		# x = seltorch.sigmoid(x)
+		# x = torch.sigmoid(x)
 		return x
 
 
@@ -626,7 +626,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		loss = criterion(outputs, targets)
 
 		losses.update(loss.item(), data.size(0))
-		metrics.update(outputs, targets)
+		metrics.update(outputs, targets.unsqeeze(0))
 	
 		optimizer.zero_grad()
 		loss.backward()
@@ -694,7 +694,7 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 101, 2, "CBAM")
+	model = ResidualNet("ImageNet", 101, 1, "CBAM")
 
 	if torch.cuda.device_count() > 1:
 		print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -710,7 +710,7 @@ def main():
 	model.to(device)
 
 
-	criterion = nn.CrossEntropyLoss()
+	criterion = nn.BCEWithLogitsLoss()
 	optimizer = optim.Adam(model.parameters(), weight_decay=0)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
