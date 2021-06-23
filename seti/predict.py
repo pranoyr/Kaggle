@@ -87,10 +87,13 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		outputs = model(x)
 		outputs = nn.Softmax(dim=1)(outputs)
 		scores, indices = torch.topk(outputs, dim=1, k=1)
-		# outputs = torch.argmax(outputs, dim=1).item()
-		print(scores, indices)
-		l.append([filename, outputs])
-		print(filename,outputs)
+		label = torch.argmax(outputs, dim=1).item()
+		if indices.item() == 0:
+			prob = 1 - scores.item()
+		else:
+			prob = scores.item()
+		print(label, prob)
+		l.append([filename, prob])
 		
 df = pd.DataFrame(l)
 df.to_csv('submission.csv', index=False)
