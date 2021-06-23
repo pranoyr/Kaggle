@@ -544,7 +544,8 @@ class AverageMeter1:
 		self.avg = roc_auc_score(self.t_list, self.o_list)
 
 	def __str__(self):
-		fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
+		# fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
+		fmtstr = '{name} {avg' + self.fmt + '}'
 		# print(classification_report(np.array(self.t_list), np.array(self.o_list), target_names=target_names))
 		return fmtstr.format(**self.__dict__)
 
@@ -584,7 +585,7 @@ def val_epoch(model, data_loader, criterion, epoch, device):
 
 	model.eval()
 
-	metrics = AverageMeter1('Precision')
+	metrics = AverageMeter1('ROC')
 	losses = AverageMeter2('losses', ':.2f')
 	progress = ProgressMeter(
 		len(data_loader),
