@@ -83,6 +83,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		x = np.load(file_path)
 		x = transform(torch.from_numpy(x)).unsqueeze(0)
 		# compute outputs
+		x = x.type(torch.FloatTensor)
 		x = x.to(device)
 		outputs = model(x)
 		outputs = nn.Softmax(dim=1)(outputs)
