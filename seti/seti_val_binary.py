@@ -623,7 +623,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		data, targets = data.to(device), targets.to(device)
 	
 		outputs = model(data)
-		loss = criterion(outputs, targets.unsqeeze(0))
+		loss = criterion(outputs, targets.unsqueeze(0))
 
 		losses.update(loss.item(), data.size(0))
 		metrics.update(outputs, targets)
