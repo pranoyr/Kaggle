@@ -11,6 +11,7 @@
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
+from vgg import vgg16
 import numpy as np
 import random
 
@@ -696,6 +697,7 @@ def main():
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
 	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = vgg16(pretrained=False ,num_classes=1)
 
 	if torch.cuda.device_count() > 1:
 		print("Let's use", torch.cuda.device_count(), "GPUs!")
