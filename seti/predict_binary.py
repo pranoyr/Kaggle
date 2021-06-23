@@ -93,6 +93,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		# 	prob = 1 - scores.item()
 		# else:
 		# 	prob = scores.item()
+		print(prob)
 		l.append([filename.replace('.npy', ''), prob])
 		
 df = pd.DataFrame(l)
