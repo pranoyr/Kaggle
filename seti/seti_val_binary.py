@@ -515,7 +515,7 @@ class AverageMeter1:
 		o = torch.sigmoid(outputs)
 		# o = torch.argmax(o, dim=1)
 		
-		self.o_list.extend(o.cpu().numpy())
+		self.o_list.extend(o.cpu().detach().numpy())
 		self.t_list.extend(targets.cpu().numpy())
 
 		# targets = torch.nn.functional.one_hot(targets, num_classes=self.num_classes)
