@@ -11,6 +11,7 @@
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
+from sklearn.metrics import confusion_matrix
 from vgg import vgg16
 import numpy as np
 import random
@@ -547,7 +548,14 @@ class AverageMeter1:
 	def __str__(self):
 		# fmtstr = '{name} class0: {class_0' + self.fmt + '}, class1: ({class_1' + self.fmt + '})'
 		fmtstr = '{name} {avg' + self.fmt + '}'
-		# print(classification_report(np.array(self.t_list), np.array(self.o_list), target_names=target_names))
+		out_array = np.array(self.o_list)
+		mask_neg = np.array(self.o_list)<0.5
+		mask_pos = np.array(self.o_list)>0.5
+		out_array[mask_pos] = 1
+		out_array[mask_neg] = 0
+
+		print(classification_report(np.array(self.t_list), out_array, target_names=target_names))
+		print(confusion_matrix(np.array(self.t_list), out_array))
 		return fmtstr.format(**self.__dict__)
 
 		
