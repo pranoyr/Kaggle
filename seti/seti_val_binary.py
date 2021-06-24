@@ -674,7 +674,7 @@ def main():
 
 	train_transform = transforms.Compose([
 		transforms.RandomHorizontalFlip(0.5),
-		transforms.RandomVerticalFlip(p=0.5)
+		transforms.RandomVerticalFlip(p=0.5),
 		transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 								-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
