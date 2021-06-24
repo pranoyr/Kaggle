@@ -671,15 +671,22 @@ def main():
 	use_cuda = torch.cuda.is_available()
 	device = torch.device("cuda" if use_cuda else "cpu")
 
-	transform = transforms.Compose([
+
+	train_transform = transforms.Compose([
+		transforms.RandomHorizontalFlip(0.5),
+		transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
+								-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
+	])
+
+	test_transform = transforms.Compose([
 		transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 								-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
 
 
 	_, weights = make_dataset(train_csv)
-	training_data = SETIDataset(root_dir, train_csv, transform=transform)
-	validation_data = SETIDataset(root_dir, val_csv, transform=transform)
+	training_data = SETIDataset(root_dir, train_csv, transform=train_transform)
+	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform)
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
