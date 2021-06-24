@@ -87,7 +87,10 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		outputs = model(x)
 		# outputs = nn.Softmax(dim=1)(outputs)
 		prob = torch.sigmoid(outputs).item()
-		# scores, indices = torch.topk(outputs, dim=1, k=1)
+		if (prob < 0.5):
+			prob = 1
+		else:
+			prob = 10		# scores, indices = torch.topk(outputs, dim=1, k=1)
 		# label = torch.argmax(outputs, dim=1).item()
 		# if indices.item() == 0:
 		# 	prob = 1 - scores.item()
