@@ -703,7 +703,7 @@ def main():
 
 
 
-	train_transform = transforms.Compose([
+	train_transform = albumentations.Compose([
 	albumentations.HorizontalFlip(p=0.5),
 	albumentations.VerticalFlip(p=0.5),
 	albumentations.Rotate(limit=180, p=0.7),
@@ -717,7 +717,7 @@ def main():
 	),
 	ToTensorV2(p=1.0)])
 
-	test_transform = transforms.Compose([
+	test_transform = albumentations.Compose([
 	ToTensorV2(p=1.0)])
 
 
