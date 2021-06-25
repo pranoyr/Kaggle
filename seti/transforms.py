@@ -40,7 +40,7 @@ class RandomHorizontalFlip(torch.nn.Module):
         return self.__class__.__name__ + '(p={})'.format(self.p)
 
 
-class RandomVerticallFlip(torch.nn.Module):
+class RandomVerticalFlip(torch.nn.Module):
     """Horizontally flip the given image randomly with a given probability.
     If the image is torch Tensor, it is expected
     to have [..., H, W] shape, where ... means an arbitrary number of leading
