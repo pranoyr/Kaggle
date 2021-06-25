@@ -84,10 +84,10 @@ class SETIDataset(data.Dataset):
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
 
 		label = self.data[index][1]
-		if self.image_set=='train':
-			x = self.transform({"img":torch.from_numpy(x), "target":label})
-		else:
-			x = self.transform(torch.from_numpy(x))
+		# if self.image_set=='train':
+		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
+		# else:
+		x = self.transform(torch.from_numpy(x))
 		# x = torch.from_numpy(x)
 
 		# ---- Get Labels ----
@@ -687,8 +687,8 @@ def main():
 
 
 	train_transform = transforms.Compose([
-		RandomHorizontalFlip(0.5),
-		RandomVerticalFlip(p=0.5),
+		transforms.RandomHorizontalFlip(0.5),
+		transforms.RandomVerticalFlip(p=0.5),
 		transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 								-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
@@ -736,7 +736,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
