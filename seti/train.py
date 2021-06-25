@@ -90,7 +90,7 @@ class SETIDataset(data.Dataset):
 		# if self.image_set=='train':
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
-		x = self.transform(torch.from_numpy(x))
+		x = self.transform(image = torch.from_numpy(x))
 		# x = torch.from_numpy(x)
 
 		# ---- Get Labels ----
