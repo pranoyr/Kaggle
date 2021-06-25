@@ -705,6 +705,7 @@ def main():
 
 
 	train_transform = albumentations.Compose([
+	albumentations.Resize(224, 224),
 	albumentations.HorizontalFlip(p=0.5),
 	albumentations.VerticalFlip(p=0.5),
 	albumentations.Rotate(limit=180, p=0.7),
@@ -714,6 +715,7 @@ def main():
 		fill_value=0, always_apply=False, p=0.5
 	),
 	albumentations.ShiftScaleRotate(
+		albumentations.Resize(224, 224),
 		shift_limit=0.25, scale_limit=0.1, rotate_limit=0
 	),
 	ToTensorV2(p=1.0)])
