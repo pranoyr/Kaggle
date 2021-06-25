@@ -83,7 +83,7 @@ class SETIDataset(data.Dataset):
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
 
 		label = self.data[index][1]
-		x, _ = self.transform({"img":torch.from_numpy(x), "target":label})
+		x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# x = torch.from_numpy(x)
 
 		# ---- Get Labels ----

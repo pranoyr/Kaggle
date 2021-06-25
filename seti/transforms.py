@@ -70,11 +70,16 @@ class RandomVerticalFlip(torch.nn.Module):
                 return {'img' : F.vflip(img), 'target':target}
        
         
-        return {'img':img, 'target':target}
+        return img
 
 
     def __repr__(self):
         return self.__class__.__name__ + '(p={})'.format(self.p)
+
+
+
+
+
 
 
 # test_transform = transforms.Compose([
