@@ -618,7 +618,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 # In[ ]:
 
 
-resume_path = './seti-model.pth'
+resume_path = None
 start_epoch = 1
 wt_decay = 0.00001
 batch_size = 32
