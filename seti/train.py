@@ -90,8 +90,9 @@ class SETIDataset(data.Dataset):
 		# if self.image_set=='train':
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
-		# x = self.transform(torch.from_numpy(x))
-		x = self.transform(image = x)
+		if self.transform:
+			x = self.transform(torch.from_numpy(x))
+		# x = self.transform(image = x)
 		# x = torch.from_numpy(x)
 
 		# ---- Get Labels ----
@@ -690,43 +691,43 @@ def main():
 	device = torch.device("cuda" if use_cuda else "cpu")
 
 
-	# train_transform = transforms.Compose([
-	# 	transforms.RandomHorizontalFlip(0.5),
-	# 	transforms.RandomVerticalFlip(p=0.5),
-	# 	transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-	# 							-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
-	# ])
+	train_transform = transforms.Compose([
+		transforms.RandomHorizontalFlip(0.5),
+		transforms.RandomVerticalFlip(p=0.5),
+		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
+		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
+	])
 
 	# test_transform = transforms.Compose([
-	# 	transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-	# 							-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
+	# 	# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
+	# 	# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	# ])
 
 
 
-	train_transform = albumentations.Compose([
-	albumentations.Resize(224, 224),
-	albumentations.HorizontalFlip(p=0.5),
-	albumentations.VerticalFlip(p=0.5),
-	albumentations.Rotate(limit=180, p=0.7),
-	albumentations.RandomBrightness(limit=0.6, p=0.5),
-	albumentations.Cutout(
-		num_holes=10, max_h_size=12, max_w_size=12,
-		fill_value=0, always_apply=False, p=0.5
-	),
-	albumentations.ShiftScaleRotate(
-		shift_limit=0.25, scale_limit=0.1, rotate_limit=0
-	),
-	ToTensorV2(p=1.0)])
+	# train_transform = albumentations.Compose([
+	# albumentations.Resize(224, 224),
+	# albumentations.HorizontalFlip(p=0.5),
+	# albumentations.VerticalFlip(p=0.5),
+	# albumentations.Rotate(limit=180, p=0.7),
+	# albumentations.RandomBrightness(limit=0.6, p=0.5),
+	# albumentations.Cutout(
+	# 	num_holes=10, max_h_size=12, max_w_size=12,
+	# 	fill_value=0, always_apply=False, p=0.5
+	# ),
+	# albumentations.ShiftScaleRotate(
+	# 	shift_limit=0.25, scale_limit=0.1, rotate_limit=0
+	# ),
+	# ToTensorV2(p=1.0)])
 
-	test_transform = albumentations.Compose([
-	albumentations.Resize(224, 224),
-	ToTensorV2(p=1.0)])
+	# test_transform = albumentations.Compose([
+	# albumentations.Resize(224, 224),
+	# ToTensorV2(p=1.0)])
 
 
 	_, weights = make_dataset(train_csv)
 	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
-	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
+	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
