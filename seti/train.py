@@ -8,7 +8,7 @@
 # It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
 # For example, here's several helpful packages to load
 
-from seti.eff import EfficientNet
+from eff import EfficientNet
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
