@@ -721,7 +721,7 @@ def main():
 	# define model
 	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
 	# model = vgg16(pretrained=False ,num_classes=1)
-	model = EfficientNet()
+	model = EfficientNet.from_pretrained('efficientnet-b0')
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
