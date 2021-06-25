@@ -12,6 +12,7 @@ from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
+from transforms import RandomHorizontalFlip, RandomVerticallFlip
 from vgg import vgg16
 import numpy as np
 import random
@@ -80,11 +81,12 @@ class SETIDataset(data.Dataset):
 		# ---- Get Inputs ----
 		x = np.load(
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
-		x = self.transform(torch.from_numpy(x))
+
+		label = self.data[index][1]
+		x, _ = self.transform({"img":torch.from_numpy(x), "target":label})
 		# x = torch.from_numpy(x)
 
 		# ---- Get Labels ----
-		label = self.data[index][1]
 		target = torch.tensor(label)
 		return x.type(torch.FloatTensor), target.type(torch.FloatTensor)
 
