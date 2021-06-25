@@ -34,8 +34,8 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-model = ResidualNet("ImageNet", 101, 2, "CBAM")
-model = nn.DataParallel(model)
+model = ResidualNet("ImageNet", 101, 1, "CBAM")
+# model = nn.DataParallel(model)
 # load pretrained weights
 checkpoint = torch.load('./seti-model.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
@@ -85,15 +85,19 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		x = x.type(torch.FloatTensor)
 		x = x.to(device)
 		outputs = model(x)
-		outputs = nn.Softmax(dim=1)(outputs)
-		scores, indices = torch.topk(outputs, dim=1, k=1)
-		label = torch.argmax(outputs, dim=1).item()
-		if indices.item() == 0:
-			prob = 1 - scores.item()
-		else:
-			prob = scores.item()
-		print(label, prob)
-		l.append([filename.replace('.npy', ''), label])
+		# outputs = nn.Softmax(dim=1)(outputs)
+		prob = torch.sigmoid(outputs).item()
+		# if (prob > 0.5):
+		# 	prob = 1
+		# else:
+		# 	prob = 0		# scores, indices = torch.topk(outputs, dim=1, k=1)
+		# label = torch.argmax(outputs, dim=1).item()
+		# if indices.item() == 0:
+		# 	prob = 1 - scores.item()
+		# else:
+		# 	prob = scores.item()
+		print(prob)
+		l.append([filename.replace('.npy', ''), prob])
 		
 df = pd.DataFrame(l)
 df.to_csv('submission.csv', index=False)
