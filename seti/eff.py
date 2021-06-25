@@ -206,7 +206,7 @@ class EfficientNet(nn.Module):
         self._avg_pooling = nn.AdaptiveAvgPool2d(1)
         if self._global_params.include_top:
             self._dropout = nn.Dropout(self._global_params.dropout_rate)
-            self._fc = nn.Linear(out_channels, 2)
+            self._fc = nn.Linear(out_channels, 1)
 
         # set activation to memory efficient swish by default
         self._swish = MemoryEfficientSwish()
