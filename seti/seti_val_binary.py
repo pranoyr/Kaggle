@@ -8,6 +8,7 @@
 # It is defined by the kaggle/python Docker image: https://github.com/kaggle/docker-python
 # For example, here's several helpful packages to load
 
+from seti.eff import EfficientNet
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
@@ -718,8 +719,9 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 101, 1, "CBAM")
+	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
 	# model = vgg16(pretrained=False ,num_classes=1)
+	model = EfficientNet()
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
