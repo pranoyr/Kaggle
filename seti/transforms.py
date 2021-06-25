@@ -67,7 +67,7 @@ class RandomVerticalFlip(torch.nn.Module):
         if target == 1:
             if torch.rand(1) < self.p:
                 
-                return {'img' : F.vflip(img), 'target':target}
+                return img
        
         
         return img
