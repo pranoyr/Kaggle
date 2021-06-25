@@ -64,11 +64,12 @@ def make_dataset(train_val_dist):
 class SETIDataset(data.Dataset):
 	'Characterizes a dataset for PyTorch'
 
-	def __init__(self, root_dir, csv_file, num_classes=1, transform=None):
+	def __init__(self, root_dir, csv_file, num_classes=1, transform=None, image_set='train'):
 		'Initialization'
 		self.root_dir = root_dir
 		self.transform = transform
 		self.num_classes = num_classes
+		self.image_set = image_set
 
 		self.data, _ = make_dataset(csv_file)
 
@@ -83,7 +84,10 @@ class SETIDataset(data.Dataset):
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
 
 		label = self.data[index][1]
-		x = self.transform({"img":torch.from_numpy(x), "target":label})
+		if self.image_set=='train':
+			x = self.transform({"img":torch.from_numpy(x), "target":label})
+		else:
+			x = self.transform(x)
 		# x = torch.from_numpy(x)
 
 		# ---- Get Labels ----
@@ -696,8 +700,8 @@ def main():
 
 
 	_, weights = make_dataset(train_csv)
-	training_data = SETIDataset(root_dir, train_csv, transform=train_transform)
-	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform)
+	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
+	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
