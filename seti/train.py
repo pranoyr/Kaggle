@@ -765,13 +765,13 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
 	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
-	scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5], gamma=0.1)
+	scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
 
 	th = -1
 	# start training
