@@ -91,15 +91,15 @@ class SETIDataset(data.Dataset):
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
 		if self.transform:
-			x = self.transform(torch.from_numpy(x))
+			x = self.transform(torch.from_numpy(x).type(torch.FloatTensor))
 		else:
-			x = torch.from_numpy(x)
+			x = torch.from_numpy(x).type(torch.FloatTensor)
 		# x = self.transform(image = x)
 		
 
 		# ---- Get Labels ----
 		target = torch.tensor(label)
-		return x.type(torch.FloatTensor), target.type(torch.FloatTensor)
+		return x, target.type(torch.FloatTensor)
 
 
 # root_dir = '/kaggle/input/seti-breakthrough-listen/train'
