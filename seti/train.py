@@ -765,7 +765,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=5e-6)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
