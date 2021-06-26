@@ -92,8 +92,10 @@ class SETIDataset(data.Dataset):
 		# else:
 		if self.transform:
 			x = self.transform(torch.from_numpy(x))
+		else:
+			x = torch.from_numpy(x)
 		# x = self.transform(image = x)
-		# x = torch.from_numpy(x)
+		
 
 		# ---- Get Labels ----
 		target = torch.tensor(label)
