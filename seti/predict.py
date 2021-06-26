@@ -75,7 +75,7 @@ for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
 		# x = transform(torch.from_numpy(x)).unsqueeze(0)
-		x = x.unsqueeze(0)
+		x = torch.from_numpy(x).unsqueeze(0)
 		# compute outputs
 		x = x.type(torch.FloatTensor)
 		x = x.to(device)
