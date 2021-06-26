@@ -34,7 +34,7 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-model = ResidualNet("ImageNet", 101, 1, "CBAM")
+model = ResidualNet("ImageNet", 50, 1, "CBAM")
 # model = nn.DataParallel(model)
 # load pretrained weights
 checkpoint = torch.load('./seti-model.pth')
