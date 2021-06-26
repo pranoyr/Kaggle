@@ -28,7 +28,7 @@ from sklearn.metrics import precision_recall_curve
 from sklearn.metrics import average_precision_score
 
 
-from seti_val import ResidualNet
+from train import ResidualNet
 
 use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
