@@ -69,18 +69,13 @@ torch.manual_seed(seed)
 
 
 
-transform = transforms.Compose([
-	transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-							-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
-])
-
-
 
 l = []
 for filename in os.listdir('/home/neuroplex/Kaggle/seti/test/test'):
 		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
-		x = transform(torch.from_numpy(x)).unsqueeze(0)
+		# x = transform(torch.from_numpy(x)).unsqueeze(0)
+		x = x.unsqueeze(0)
 		# compute outputs
 		x = x.type(torch.FloatTensor)
 		x = x.to(device)
