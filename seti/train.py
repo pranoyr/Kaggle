@@ -15,6 +15,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
 from transforms import RandomHorizontalFlip, RandomVerticalFlip
 from albumentations.pytorch.transforms import ToTensorV2
+from transforms import GaussianNoise
 from vgg import vgg16
 import numpy as np
 import random
@@ -696,7 +697,9 @@ def main():
 	train_transform = transforms.Compose([
 		transforms.RandomHorizontalFlip(0.5),
 		transforms.RandomVerticalFlip(p=0.5),
-		transforms.RandomRotation(degrees=(0, 180))
+		transforms.RandomRotation(degrees=(0, 90)),
+		transforms.ColorJitter(brightness=[0.2,1]),
+		GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
