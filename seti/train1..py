@@ -679,9 +679,9 @@ def main():
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 0.8
+	msk = np.random.rand(len(df)) <= 1.0
 	train_csv = df[msk]
-	val_csv = df[~msk]
+	# val_csv = df[~msk]
 
 
 	seed = 0
@@ -695,8 +695,7 @@ def main():
 
 	train_transform = transforms.Compose([
 		transforms.RandomHorizontalFlip(0.5),
-		transforms.RandomVerticalFlip(p=0.5),
-		transforms.RandomRotation(degrees=(0, 180))
+		transforms.RandomVerticalFlip(p=0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
@@ -730,7 +729,7 @@ def main():
 
 	_, weights = make_dataset(train_csv)
 	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
-	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
+	# validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
@@ -738,9 +737,9 @@ def main():
 											sampler = sampler,
 											num_workers=0)
 
-	val_loader = torch.utils.data.DataLoader(validation_data,
-											batch_size=batch_size,
-											num_workers=0)
+	# val_loader = torch.utils.data.DataLoader(validation_data,
+	# 										batch_size=batch_size,
+	# 										num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
@@ -783,30 +782,30 @@ def main():
 
 		# validate
 		if (epoch) % 1 == 0:
-			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
-			lr = optimizer.param_groups[0]['lr']
-			# write summary
-			summary_writer.add_scalar(
-				'losses/train_loss', train_loss, global_step=epoch)
-			summary_writer.add_scalar(
-				'acc/train_roc', train_acc, global_step=epoch)
-			summary_writer.add_scalar(
-				'lr_rate', lr, global_step=epoch)
+			# val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+			# lr = optimizer.param_groups[0]['lr']
+			# # write summary
+			# summary_writer.add_scalar(
+			# 	'losses/train_loss', train_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'acc/train_roc', train_acc, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'lr_rate', lr, global_step=epoch)
 
-			summary_writer.add_scalar(
-				'losses/val_loss', val_loss, global_step=epoch)
-			summary_writer.add_scalar(
-				'losses/val_roc', val_acc, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/val_loss', val_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/val_roc', val_acc, global_step=epoch)
 
-			scheduler.step(val_loss)
+			# scheduler.step(val_loss)
 
-			if (val_acc > th):
-				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-						'optimizer_state_dict': optimizer.state_dict()}
-				
-				torch.save(state, 'seti-model.pth')
-				print("Epoch {} model saved!\n".format(epoch))
-				th = val_acc
+			# if (val_acc > th):
+			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+					'optimizer_state_dict': optimizer.state_dict()}
+			
+			torch.save(state, 'seti-model.pth')
+			print("Epoch {} model saved!\n".format(epoch))
+				# th = val_acc
 				
 if __name__=='__main__':
 	main()
