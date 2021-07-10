@@ -712,6 +712,10 @@ def main():
 	# ])
 
 
+	test_transform = transforms.Compose([
+		transforms.Resize((256,256))])
+
+
 
 	# train_transform = albumentations.Compose([
 	# albumentations.Resize(224, 224),
@@ -735,7 +739,7 @@ def main():
 
 	_, weights = make_dataset(train_csv)
 	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
-	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
+	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
