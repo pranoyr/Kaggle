@@ -9,6 +9,7 @@
 # For example, here's several helpful packages to load
 
 from eff import EfficientNet
+from vit_pytorch.vit import ViT
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
@@ -750,7 +751,19 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = ViT(
+    image_size = 256,
+    patch_size = 32,
+    num_classes = 1,
+    dim = 1024,
+	channels = 6,
+    depth = 6,
+    heads = 8,
+    mlp_dim = 2048,
+    dropout = 0.1,
+    emb_dropout = 0.1
+)
 	# model = vgg16(pretrained=False ,num_classes=1)
 	# model = EfficientNet.from_pretrained('efficientnet-b0')
 
