@@ -700,7 +700,7 @@ def main():
 		transforms.RandomVerticalFlip(p=0.5),
 		# transforms.RandomRotation(degrees=(0, 90)),
 		# transforms.ColorJitter(brightness=[0.2,1]),
-		GaussianNoise(0.5)
+		# GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
@@ -782,7 +782,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
