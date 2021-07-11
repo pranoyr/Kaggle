@@ -768,7 +768,7 @@ def main():
     # mlp_dim = 2048,
     # dropout = 0.1,
     # emb_dropout = 0.1
-)
+	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
 	# model = EfficientNet.from_pretrained('efficientnet-b0')
 
