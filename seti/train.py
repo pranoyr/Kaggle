@@ -569,8 +569,8 @@ class AverageMeter1:
 		out_array[mask_pos] = 1
 		out_array[mask_neg] = 0
 
-		print(classification_report(np.array(self.t_list), out_array, target_names=target_names))
-		print(confusion_matrix(np.array(self.t_list), out_array))
+		# print(classification_report(np.array(self.t_list), out_array, target_names=target_names))
+		# print(confusion_matrix(np.array(self.t_list), out_array))
 		return fmtstr.format(**self.__dict__)
 
 		
