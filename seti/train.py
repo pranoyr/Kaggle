@@ -676,8 +676,8 @@ def main():
 
 	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
 	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
-	root_dir = '/home/neuroplex/Kaggle/seti/train'
-	train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
+	root_dir = '/home/cyberdome/Kaggle/seti/train'
+	train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
