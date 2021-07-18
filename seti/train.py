@@ -689,6 +689,12 @@ def main():
 	val_csv = df[~msk]
 
 
+	df = pd.read_csv(train_csv_old)
+	df['split'] = np.random.randn(df.shape[0], 1)
+	msk = np.random.rand(len(df)) <= 1.0
+	train_csv_old = df[msk]
+
+
 	seed = 0
 	random.seed(seed)
 	np.random.seed(seed)
