@@ -705,8 +705,8 @@ def main():
 
 
 	train_transform = transforms.Compose([
-		transforms.RandomHorizontalFlip(0.5),
-		transforms.RandomVerticalFlip(p=0.5),
+		# transforms.RandomHorizontalFlip(0.5),
+		# transforms.RandomVerticalFlip(p=0.5),
 		transforms.Resize((256,256))
 		# transforms.RandomRotation(degrees=(0, 90)),
 		# transforms.ColorJitter(brightness=[0.2,1]),
