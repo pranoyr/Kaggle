@@ -679,6 +679,9 @@ def main():
 	root_dir = '/home/cyberdome/Kaggle/seti/train'
 	train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
 
+	root_dir_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
+	train_csv_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
+
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
 	msk = np.random.rand(len(df)) <= 0.8
@@ -738,7 +741,10 @@ def main():
 
 
 	_, weights = make_dataset(train_csv)
-	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
+	training_data = []
+	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
+	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
+	training_data = torch.utils.data.ConcatDataset(training_data)
 	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
