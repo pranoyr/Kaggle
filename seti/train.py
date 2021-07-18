@@ -756,7 +756,7 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 18, 1, "CBAM")
+	model = ResidualNet("ImageNet", 50, 1, "CBAM")
 	# model = ViT(
     # image_size = 256,
     # patch_size = 32,
@@ -819,7 +819,7 @@ def main():
 			summary_writer.add_scalar(
 				'losses/val_roc', val_acc, global_step=epoch)
 
-			scheduler.step(val_loss)
+			# scheduler.step(val_loss)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
