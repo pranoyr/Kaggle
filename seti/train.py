@@ -87,14 +87,13 @@ class SETIDataset(data.Dataset):
 		# ---- Get Inputs ----
 		x = np.load(
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
-		x = x.view(32,-1,256,3)
 
 		label = self.data[index][1]
 		# if self.image_set=='train':
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
 		if self.transform:
-			x = self.transform(torch.from_numpy(x).type(torch.FloatTensor))
+			x = self.transform(torch.from_numpy(x).view(32,-1,256,3).type(torch.FloatTensor))
 		else:
 			x = torch.from_numpy(x).type(torch.FloatTensor)
 		# x = self.transform(image = x)
