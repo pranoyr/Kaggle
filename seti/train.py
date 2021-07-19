@@ -95,6 +95,7 @@ class SETIDataset(data.Dataset):
 		if self.transform:
 			x = self.transform(torch.from_numpy(x).view(32,-1,256,3).type(torch.FloatTensor))
 		else:
+			print(x.shape)
 			x = torch.from_numpy(x).view(32,-1,256,3).type(torch.FloatTensor)
 		# x = self.transform(image = x)
 		
@@ -772,16 +773,16 @@ def main():
 	# define model
 	model = ResidualNet("ImageNet", 50, 1, "CBAM")
 	# model = ViT(
-    # image_size = 256,
-    # patch_size = 32,
-    # num_classes = 1,
-    # dim = 1024,
+	# image_size = 256,
+	# patch_size = 32,
+	# num_classes = 1,
+	# dim = 1024,
 	# channels = 6,
-    # depth = 6,
-    # heads = 8,
-    # mlp_dim = 2048,
-    # dropout = 0.1,
-    # emb_dropout = 0.1
+	# depth = 6,
+	# heads = 8,
+	# mlp_dim = 2048,
+	# dropout = 0.1,
+	# emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
 	# model = EfficientNet.from_pretrained('efficientnet-b8')
