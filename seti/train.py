@@ -714,7 +714,7 @@ def main():
 		# GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
-	])
+	#])
 
 	# test_transform = transforms.Compose([
 	# 	# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
@@ -749,10 +749,10 @@ def main():
 
 	_, weights = make_dataset(train_csv)
 	training_data = []
-	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
-	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
+	training_data.append(SETIDataset(root_dir, train_csv, transform=None, image_set = 'train'))
+	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=None, image_set = 'train'))
 	training_data = torch.utils.data.ConcatDataset(training_data)
-	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
+	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
