@@ -93,7 +93,7 @@ class SETIDataset(data.Dataset):
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
 		if self.transform:
-			x = self.transform(torch.from_numpy(x).view(32,-1,256,3).type(torch.FloatTensor))
+			x = self.transform(torch.from_numpy(x).view(8,-1,256,3).type(torch.FloatTensor))
 		else:
 			x = torch.from_numpy(x).type(torch.FloatTensor)
 		# x = self.transform(image = x)
@@ -672,7 +672,7 @@ def main():
 	resume_path = None
 	start_epoch = 1
 	wt_decay = 0.00001
-	batch_size = 32
+	batch_size = 8
 
 	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
 	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
