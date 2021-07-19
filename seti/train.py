@@ -87,7 +87,7 @@ class SETIDataset(data.Dataset):
 		# ---- Get Inputs ----
 		x = np.load(
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
-		x = x.view(-1,256,3)
+		x = x.view(32,-1,256,3)
 
 		label = self.data[index][1]
 		# if self.image_set=='train':
