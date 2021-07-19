@@ -87,6 +87,7 @@ class SETIDataset(data.Dataset):
 		# ---- Get Inputs ----
 		x = np.load(
 			f"{self.root_dir}/{self.data[index][0][0]}/{self.data[index][0]}.npy")
+		x = x.view(-1,256,3)
 
 		label = self.data[index][1]
 		# if self.image_set=='train':
@@ -704,10 +705,10 @@ def main():
 	device = torch.device("cuda" if use_cuda else "cpu")
 
 
-	train_transform = transforms.Compose([
+	# train_transform = transforms.Compose([
 		# transforms.RandomHorizontalFlip(0.5),
 		# transforms.RandomVerticalFlip(p=0.5),
-		transforms.Resize((256,256))
+		# transforms.Resize((256,256))
 		# transforms.RandomRotation(degrees=(0, 9pyt0)),
 		# transforms.ColorJitter(brightness=[0.2,1]),
 		# GaussianNoise(0.5)
@@ -721,8 +722,8 @@ def main():
 	# ])
 
 
-	test_transform = transforms.Compose([
-		transforms.Resize((256,256))])
+	# test_transform = transforms.Compose([
+	# 	transforms.Resize((256,256))])
 
 
 

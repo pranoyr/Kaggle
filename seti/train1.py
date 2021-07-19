@@ -9,12 +9,14 @@
 # For example, here's several helpful packages to load
 
 from eff import EfficientNet
+from vit_pytorch.vit import ViT
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
 from transforms import RandomHorizontalFlip, RandomVerticalFlip
 from albumentations.pytorch.transforms import ToTensorV2
+from transforms import GaussianNoise
 from vgg import vgg16
 import numpy as np
 import random
@@ -674,14 +676,23 @@ def main():
 
 	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
 	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
-	root_dir = '/home/neuroplex/Kaggle/seti/train'
-	train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
+	root_dir = '/home/cyberdome/Kaggle/seti/train'
+	train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
+
+	root_dir_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
+	train_csv_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 1.0
+	msk = np.random.rand(len(df)) <= 0.8
 	train_csv = df[msk]
-	# val_csv = df[~msk]
+	val_csv = df[~msk]
+
+
+	df = pd.read_csv(train_csv_old)
+	df['split'] = np.random.randn(df.shape[0], 1)
+	msk = np.random.rand(len(df)) <= 1.0
+	train_csv_old = df[msk]
 
 
 	seed = 0
@@ -694,8 +705,12 @@ def main():
 
 
 	train_transform = transforms.Compose([
-		transforms.RandomHorizontalFlip(0.5),
-		transforms.RandomVerticalFlip(p=0.5)
+		# transforms.RandomHorizontalFlip(0.5),
+		# transforms.RandomVerticalFlip(p=0.5),
+		transforms.Resize((256,256))
+		# transforms.RandomRotation(degrees=(0, 9pyt0)),
+		# transforms.ColorJitter(brightness=[0.2,1]),
+		# GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	])
@@ -704,6 +719,10 @@ def main():
 	# 	# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 	# 	# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
 	# ])
+
+
+	test_transform = transforms.Compose([
+		transforms.Resize((256,256))])
 
 
 
@@ -728,8 +747,11 @@ def main():
 
 
 	_, weights = make_dataset(train_csv)
-	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
-	# validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
+	training_data = []
+	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
+	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
+	training_data = torch.utils.data.ConcatDataset(training_data)
+	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
 
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
@@ -737,18 +759,30 @@ def main():
 											sampler = sampler,
 											num_workers=0)
 
-	# val_loader = torch.utils.data.DataLoader(validation_data,
-	# 										batch_size=batch_size,
-	# 										num_workers=0)
+	val_loader = torch.utils.data.DataLoader(validation_data,
+											batch_size=batch_size,
+											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	# model = ViT(
+    # image_size = 256,
+    # patch_size = 32,
+    # num_classes = 1,
+    # dim = 1024,
+	# channels = 6,
+    # depth = 6,
+    # heads = 8,
+    # mlp_dim = 2048,
+    # dropout = 0.1,
+    # emb_dropout = 0.1
+	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	# model = EfficientNet.from_pretrained('efficientnet-b0')
+	model = EfficientNet.from_pretrained('efficientnet-b8')
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -765,7 +799,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -782,30 +816,30 @@ def main():
 
 		# validate
 		if (epoch) % 1 == 0:
-			# val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
-			# lr = optimizer.param_groups[0]['lr']
-			# # write summary
-			# summary_writer.add_scalar(
-			# 	'losses/train_loss', train_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'acc/train_roc', train_acc, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'lr_rate', lr, global_step=epoch)
+			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+			lr = optimizer.param_groups[0]['lr']
+			# write summary
+			summary_writer.add_scalar(
+				'losses/train_loss', train_loss, global_step=epoch)
+			summary_writer.add_scalar(
+				'acc/train_roc', train_acc, global_step=epoch)
+			summary_writer.add_scalar(
+				'lr_rate', lr, global_step=epoch)
 
-			# summary_writer.add_scalar(
-			# 	'losses/val_loss', val_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'losses/val_roc', val_acc, global_step=epoch)
+			summary_writer.add_scalar(
+				'losses/val_loss', val_loss, global_step=epoch)
+			summary_writer.add_scalar(
+				'losses/val_roc', val_acc, global_step=epoch)
 
 			# scheduler.step(val_loss)
 
-			# if (val_acc > th):
-			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-					'optimizer_state_dict': optimizer.state_dict()}
-			
-			torch.save(state, 'seti-model.pth')
-			print("Epoch {} model saved!\n".format(epoch))
-				# th = val_acc
+			if (val_acc > th):
+				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+						'optimizer_state_dict': optimizer.state_dict()}
+				
+				torch.save(state, 'seti-model.pth')
+				print("Epoch {} model saved!\n".format(epoch))
+				th = val_acc
 				
 if __name__=='__main__':
 	main()
