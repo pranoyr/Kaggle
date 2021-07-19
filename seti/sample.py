@@ -5,6 +5,6 @@
 import torch 
 
 
-x = torch.Tensor(273,256,6)
-x = x.view(-1,256,3)
+x = torch.Tensor(6,273,256)
+x = x.view(3,-1,256)
 print(x.shape)
