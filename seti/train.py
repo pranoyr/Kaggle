@@ -708,7 +708,7 @@ def main():
 		# transforms.RandomHorizontalFlip(0.5),
 		# transforms.RandomVerticalFlip(p=0.5),
 		transforms.Resize((256,256))
-		# transforms.RandomRotation(degrees=(0, 90)),
+		# transforms.RandomRotation(degrees=(0, 9pyt0)),
 		# transforms.ColorJitter(brightness=[0.2,1]),
 		# GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
@@ -768,7 +768,7 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
 	# model = ViT(
     # image_size = 256,
     # patch_size = 32,
@@ -782,7 +782,7 @@ def main():
     # emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	# model = EfficientNet.from_pretrained('efficientnet-b0')
+	model = EfficientNet.from_pretrained('efficientnet-b8')
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
