@@ -338,7 +338,7 @@ class ResNet(nn.Module):
 		self.network_type = network_type
 		# different model config between ImageNet and CIFAR
 		if network_type == "ImageNet":
-			self.conv1 = nn.Conv2d(6, 64, kernel_size=7,
+			self.conv1 = nn.Conv2d(3, 64, kernel_size=7,
 								   stride=2, padding=3, bias=False)
 			self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 			self.avgpool = nn.AvgPool2d(7)
@@ -768,7 +768,7 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = ResidualNet("ImageNet", 50, 1, "CBAM")
 	# model = ViT(
     # image_size = 256,
     # patch_size = 32,
@@ -782,7 +782,7 @@ def main():
     # emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	model = EfficientNet.from_pretrained('efficientnet-b8')
+	# model = EfficientNet.from_pretrained('efficientnet-b8')
 
 	if torch.cuda.device_count() > 1:
 		print("Let's use", torch.cuda.device_count(), "GPUs!")
