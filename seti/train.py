@@ -672,7 +672,7 @@ def main():
 	resume_path = None
 	start_epoch = 1
 	wt_decay = 0.00001
-	batch_size = 32
+	batch_size = 16
 
 	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
 	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
@@ -763,6 +763,7 @@ def main():
 
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
+											sampler = sampler,
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
@@ -786,10 +787,10 @@ def main():
 	# model = vgg16(pretrained=False ,num_classes=1)
 	model = EfficientNet.from_pretrained('efficientnet-b7')
 
-	if torch.cuda.device_count() > 1:
-		print("Let's use", torch.cuda.device_count(), "GPUs!")
+	# if torch.cuda.device_count() > 1:
+	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
 	# dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
-	model = nn.DataParallel(model)
+	# model = nn.DataParallel(model)
 
 	if resume_path:
 		checkpoint = torch.load(resume_path)
