@@ -95,7 +95,7 @@ class SETIDataset(data.Dataset):
 		if self.transform:
 			x = self.transform(torch.from_numpy(x).view(32,-1,256,3).type(torch.FloatTensor))
 		else:
-			x = torch.from_numpy(x).type(torch.FloatTensor)
+			x = torch.from_numpy(x).view(32,-1,256,3).type(torch.FloatTensor)
 		# x = self.transform(image = x)
 		
 
