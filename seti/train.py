@@ -814,6 +814,8 @@ def main():
 	th = -1
 	# start training
 	for epoch in range(start_epoch, 100):
+    		
+		val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 		# train, test model
 		train_loss, train_acc = train_epoch(
 			model, train_loader, criterion, optimizer, epoch, device)
