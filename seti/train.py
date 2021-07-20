@@ -25,7 +25,7 @@ import albumentations
 from sklearn.metrics import classification_report
 import tensorboardX
 import argparse
-from torchvision.models import resnet50
+from torchvision.models import resnet101
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 import torch.optim as optim
@@ -773,7 +773,7 @@ def main():
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
 	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
-	model = resnet50(num_classes=1)
+	model = resnet101(num_classes=1)
 	# model = ViT(
 	# image_size = 256,
 	# patch_size = 32,
