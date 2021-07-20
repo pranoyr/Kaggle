@@ -777,8 +777,8 @@ def main():
 	# tensorboard
 	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
 	# define model
-	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
-	model = resnet101(num_classes=1)
+	model = ResidualNet("ImageNet", 101, 1, "CBAM")
+	# model = resnet101(num_classes=1)
 	# model = ViT(
 	# image_size = 256,
 	# patch_size = 32,
