@@ -794,10 +794,10 @@ def main():
             A.ShiftScaleRotate(
                 shift_limit=0.25, scale_limit=0.1, rotate_limit=0
             ),
-            A.OneOf([
-                GridMask(num_grid=3, mode=0, rotate=15),
-                GridMask(num_grid=3, mode=2, rotate=15),
-                                ], p=0.7),
+            # A.OneOf([
+            #     GridMask(num_grid=3, mode=0, rotate=15),
+            #     GridMask(num_grid=3, mode=2, rotate=15),
+            #                     ], p=0.7),
             ToTensorV2(p=1.0),
 
 	])
