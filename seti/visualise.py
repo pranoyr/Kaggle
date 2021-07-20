@@ -44,7 +44,10 @@ test_transform = transforms.Compose([
 
 fig, ax = plt.subplots(figsize=(20,20))
 x = np.load("/Users/pranoyr/Desktop/02504e8ff8d3f66.npy").astype(float)
+
 x = torch.from_numpy(x).view(3,-1,256)
+
+
 x = test_transform(x)
 print(x.shape)
 cv2.imshow('window', x.permute(1,2,0).numpy())
@@ -54,4 +57,6 @@ plt.ylabel('Frequency')
 plt.show()
 
 
-
+# x = torch.from_numpy(x).view(3,-1,256)
+# x = x.permute(1,2,0).numpy()
+# print(x.shape)

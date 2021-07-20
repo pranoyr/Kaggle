@@ -14,9 +14,10 @@ from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
+import albumentations as A
+from albumentations.pytorch.transforms import ToTensorV2
 import wandb
 from transforms import RandomHorizontalFlip, RandomVerticalFlip
-from albumentations.pytorch.transforms import ToTensorV2
 from transforms import GaussianNoise
 from vgg import vgg16
 import numpy as np
@@ -93,8 +94,11 @@ class SETIDataset(data.Dataset):
 		# if self.image_set=='train':
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
-		if self.transform:
-			x = self.transform(torch.from_numpy(x).view(3,-1,256).type(torch.FloatTensor))
+		if self.transform:	
+			x = torch.from_numpy(x).view(3,-1,256)
+			x = x.permute(1,2,0).numpy()
+			x = self.transform(image=x)['image']
+			x = x.type(torch.FloatTensor)
 		else:
 			x = torch.from_numpy(x).view(3,-1,256).type(torch.FloatTensor)
 		# x = self.transform(image = x)
@@ -705,25 +709,23 @@ def main():
 	device = torch.device("cuda" if use_cuda else "cpu")
 
 
-	train_transform = transforms.Compose([
-		transforms.Resize((256,256)),
-		transforms.RandomHorizontalFlip(0.5),
-		# transforms.RandomVerticalFlip(p=0.5),
-		# transforms.RandomRotation(degrees=(0, 9)),
-		# transforms.ColorJitter(brightness=[0.2,1]),
-		# GaussianNoise(0.5)
-		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
+	train_transform = A.Compose([
+	A.Resize(256,256),
+	A.HorizontalFlip(p=0.5),
+	A.VerticalFlip(p=0.5),
+	A.Transpose(),
+	A.ShiftScaleRotate(),	
+	A.RandomRotate90(),
+	ToTensorV2(p=1.0)
+
 	])
 
-	# test_transform = transforms.Compose([
-	# 	# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-	# 	# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
-	# ])
 
+	test_transform = A.Compose([
+	A.Resize(256,256),
+	ToTensorV2(p=1.0)
 
-	test_transform = transforms.Compose([
-		transforms.Resize((256,256))])
+	])
 
 
 
