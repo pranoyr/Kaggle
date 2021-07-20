@@ -672,7 +672,7 @@ def main():
 	resume_path = None
 	start_epoch = 1
 	wt_decay = 0.00001
-	batch_size = 16
+	batch_size = 32
 
 	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
 	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'

@@ -25,7 +25,7 @@ import albumentations
 from sklearn.metrics import classification_report
 import tensorboardX
 import argparse
-from torchvision.models import resnet18
+from torchvision.models import resnet101
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 import torch.optim as optim
@@ -93,9 +93,9 @@ class SETIDataset(data.Dataset):
 		# 	x = self.transform({"img":torch.from_numpy(x), "target":label})
 		# else:
 		if self.transform:
-			x = self.transform(torch.from_numpy(x).type(torch.FloatTensor))
+			x = self.transform(torch.from_numpy(x).view(3,-1,256).type(torch.FloatTensor))
 		else:
-			x = torch.from_numpy(x).type(torch.FloatTensor)
+			x = torch.from_numpy(x).view(3,-1,256).type(torch.FloatTensor)
 		# x = self.transform(image = x)
 		
 
@@ -338,7 +338,7 @@ class ResNet(nn.Module):
 		self.network_type = network_type
 		# different model config between ImageNet and CIFAR
 		if network_type == "ImageNet":
-			self.conv1 = nn.Conv2d(6, 64, kernel_size=7,
+			self.conv1 = nn.Conv2d(3, 64, kernel_size=7,
 								   stride=2, padding=3, bias=False)
 			self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
 			self.avgpool = nn.AvgPool2d(7)
@@ -705,11 +705,11 @@ def main():
 
 
 	train_transform = transforms.Compose([
-		# transforms.RandomHorizontalFlip(0.5),
-		# transforms.RandomVerticalFlip(p=0.5),
-		transforms.Resize((256,256))
-		# transforms.RandomRotation(degrees=(0, 9pyt0)),
-		# transforms.ColorJitter(brightness=[0.2,1]),
+		transforms.Resize((256,256)),
+		transforms.RandomHorizontalFlip(0.5),
+		transforms.RandomVerticalFlip(p=0.5),
+		transforms.RandomRotation(degrees=(0, 9)),
+		transforms.ColorJitter(brightness=[0.2,1]),
 		# GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
@@ -751,38 +751,43 @@ def main():
 	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
 	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
 	training_data = torch.utils.data.ConcatDataset(training_data)
-	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
-
+	# training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
 											batch_size=batch_size,
 											sampler = sampler,
 											num_workers=0)
 
+
+	_, weights = make_dataset(val_csv)
+	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
+	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
+											sampler = sampler,
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
 	# tensorboard
-	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
+	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
 	# define model
 	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = resnet101(num_classes=1)
 	# model = ViT(
-    # image_size = 256,
-    # patch_size = 32,
-    # num_classes = 1,
-    # dim = 1024,
+	# image_size = 256,
+	# patch_size = 32,
+	# num_classes = 1,
+	# dim = 1024,
 	# channels = 6,
-    # depth = 6,
-    # heads = 8,
-    # mlp_dim = 2048,
-    # dropout = 0.1,
-    # emb_dropout = 0.1
+	# depth = 6,
+	# heads = 8,
+	# mlp_dim = 2048,
+	# dropout = 0.1,
+	# emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	model = EfficientNet.from_pretrained('efficientnet-b8')
+	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -799,7 +804,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
