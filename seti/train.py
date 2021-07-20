@@ -97,7 +97,7 @@ class SETIDataset(data.Dataset):
 		if self.transform:	
 			x = torch.from_numpy(x).view(3,-1,256)
 			x = x.permute(1,2,0).numpy()
-			print(x.shape)
+			print(type(x))
 			x = self.transform(image=x)['image']
 			x = x.type(torch.FloatTensor)
 		else:

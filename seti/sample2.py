@@ -17,6 +17,6 @@ train_transform = A.Compose([
 
 
 
-x = np.ones((532,256,3)) * 2
+x = np.ones((546,256,3)) * 2
 x = train_transform(image=x)['image']
 print(x.shape)
