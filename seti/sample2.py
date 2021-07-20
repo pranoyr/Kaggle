@@ -18,5 +18,5 @@ train_transform = A.Compose([
 
 
 x = np.ones((546,256,3)) * 2
-x = train_transform(image=x)['image']
+x = train_transform(image=x.astype('float32'))['image']
 print(x.shape)
