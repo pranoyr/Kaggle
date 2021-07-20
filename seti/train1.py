@@ -9,6 +9,7 @@
 # For example, here's several helpful packages to load
 
 from eff import EfficientNet
+from albumentations.core.transforms_interface import DualTransform
 from vit_pytorch.vit import ViT
 from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
