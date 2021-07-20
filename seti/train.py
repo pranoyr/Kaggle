@@ -14,6 +14,7 @@ from torch.optim import lr_scheduler
 from torch.nn import BCEWithLogitsLoss
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
+import wandb
 from transforms import RandomHorizontalFlip, RandomVerticalFlip
 from albumentations.pytorch.transforms import ToTensorV2
 from transforms import GaussianNoise
@@ -769,8 +770,13 @@ def main():
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
+	wandb.login()
+	wandb.init(name='Seti-train.py.py', 
+           project='Seti',
+           entity='Pranoy')
+
 	# tensorboard
-	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
+	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
 	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
 	model = resnet101(num_classes=1)
@@ -824,17 +830,26 @@ def main():
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 			lr = optimizer.param_groups[0]['lr']
 			# write summary
-			summary_writer.add_scalar(
-				'losses/train_loss', train_loss, global_step=epoch)
-			summary_writer.add_scalar(
-				'acc/train_roc', train_acc, global_step=epoch)
-			summary_writer.add_scalar(
-				'lr_rate', lr, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/train_loss', train_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'acc/train_roc', train_acc, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'lr_rate', lr, global_step=epoch)
 
-			summary_writer.add_scalar(
-				'losses/val_loss', val_loss, global_step=epoch)
-			summary_writer.add_scalar(
-				'losses/val_roc', val_acc, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/val_loss', val_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/val_roc', val_acc, global_step=epoch)
+
+
+			wandb.log({
+				"Epoch": epoch,
+				"Train Loss": train_loss,
+				"Train Acc": train_acc,
+				"Valid Loss": val_loss,
+				"Valid Acc": val_acc,
+				"lr":lr})
 
 			# scheduler.step(val_loss)
 
