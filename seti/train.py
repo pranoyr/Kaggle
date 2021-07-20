@@ -778,8 +778,8 @@ def main():
 	# tensorboard
 	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
-	model = resnet101(num_classes=1)
+	model = ResidualNet("ImageNet", 101, 1, "CBAM")
+	# model = resnet101(num_classes=1)
 	# model = ViT(
 	# image_size = 256,
 	# patch_size = 32,
@@ -810,7 +810,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
