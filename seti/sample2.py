@@ -226,7 +226,7 @@ def conv3x3(in_planes, out_planes, stride=1):
 					 padding=1, bias=False)
 
 
-class BasicBlock(nn.Module):``
+class BasicBlock(nn.Module):
 	expansion = 1
 
 	def __init__(self, inplanes, planes, stride=1, downsample=None, use_cbam=False):
