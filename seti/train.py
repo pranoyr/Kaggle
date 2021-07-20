@@ -704,16 +704,16 @@ def main():
 	device = torch.device("cuda" if use_cuda else "cpu")
 
 
-	# train_transform = transforms.Compose([
-		# transforms.RandomHorizontalFlip(0.5),
-		# transforms.RandomVerticalFlip(p=0.5),
-		# transforms.Resize((256,256))
+	train_transform = transforms.Compose([
+	# 	transforms.RandomHorizontalFlip(0.5),
+	# 	transforms.RandomVerticalFlip(p=0.5),
+		transforms.Resize((256,256))
 		# transforms.RandomRotation(degrees=(0, 9pyt0)),
 		# transforms.ColorJitter(brightness=[0.2,1]),
 		# GaussianNoise(0.5)
 		# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
 		# 						-1.1921e-07], std=[0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408])
-	#])
+	])
 
 	# test_transform = transforms.Compose([
 	# 	# transforms.Normalize(mean=[1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
@@ -721,8 +721,8 @@ def main():
 	# ])
 
 
-	# test_transform = transforms.Compose([
-	# 	transforms.Resize((256,256))])
+	test_transform = transforms.Compose([
+		transforms.Resize((256,256))])
 
 
 
@@ -751,7 +751,7 @@ def main():
 	# training_data.append(SETIDataset(root_dir, train_csv, transform=None, image_set = 'train'))
 	# training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=None, image_set = 'train'))
 	# training_data = torch.utils.data.ConcatDataset(training_data)
-	training_data = SETIDataset(root_dir, train_csv, transform=None, image_set = 'train')
+	training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
 											batch_size=batch_size,
@@ -760,7 +760,7 @@ def main():
 
 
 	_, weights = make_dataset(val_csv)
-	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
+	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
