@@ -747,20 +747,21 @@ def main():
 
 
 	_, weights = make_dataset(train_csv)
-	training_data = []
+	# training_data = []
 	# training_data.append(SETIDataset(root_dir, train_csv, transform=None, image_set = 'train'))
 	# training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=None, image_set = 'train'))
 	# training_data = torch.utils.data.ConcatDataset(training_data)
-
 	training_data = SETIDataset(root_dir, train_csv, transform=None, image_set = 'train')
-	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
-
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
 											batch_size=batch_size,
 											sampler = sampler,
 											num_workers=0)
 
+
+	_, weights = make_dataset(val_csv)
+	validation_data = SETIDataset(root_dir, val_csv, transform=None, image_set = 'val')
+	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
 											sampler = sampler,
