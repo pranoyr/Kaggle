@@ -665,7 +665,6 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 	print(f' * Train Loss {losses.avg:.3f}, Ap {metrics.avg:.3f}')
 	return losses.avg, metrics.avg
 
-
 # In[ ]:
 
 def main():
@@ -809,7 +808,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-6)
+	optimizer = optim.Adam(model.parameters(), lr=1e-4, weight_decay=0)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
