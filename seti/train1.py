@@ -768,9 +768,14 @@ def main():
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
+	import wandb
+	wandb.login()
+	wandb.init(name='Seti-train1', 
+           project='Seti',
+           entity='Pranoy')
 
 	# tensorboard
-	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
+	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
 	# define model
 	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
 	model = resnet101(num_classes=1)
@@ -824,17 +829,26 @@ def main():
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 			lr = optimizer.param_groups[0]['lr']
 			# write summary
-			summary_writer.add_scalar(
-				'losses/train_loss', train_loss, global_step=epoch)
-			summary_writer.add_scalar(
-				'acc/train_roc', train_acc, global_step=epoch)
-			summary_writer.add_scalar(
-				'lr_rate', lr, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/train_loss', train_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'acc/train_roc', train_acc, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'lr_rate', lr, global_step=epoch)
 
-			summary_writer.add_scalar(
-				'losses/val_loss', val_loss, global_step=epoch)
-			summary_writer.add_scalar(
-				'losses/val_roc', val_acc, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/val_loss', val_loss, global_step=epoch)
+			# summary_writer.add_scalar(
+			# 	'losses/val_roc', val_acc, global_step=epoch)
+
+			wandb.log({
+				"Epoch": epoch,
+				"Train Loss": train_loss,
+				"Train Acc": train_acc,
+				"Valid Loss": val_loss,
+				"Valid Acc": val_acc,
+				"lr":lr})
+
 
 			# scheduler.step(val_loss)
 
