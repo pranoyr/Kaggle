@@ -25,7 +25,7 @@ import albumentations
 from sklearn.metrics import classification_report
 import tensorboardX
 import argparse
-from torchvision.models import resnet18
+from torchvision.models import resnet50
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
 import torch.optim as optim
@@ -705,7 +705,7 @@ def main():
 
 
 	train_transform = transforms.Compose([
-	# 	transforms.RandomHorizontalFlip(0.5),
+		transforms.RandomHorizontalFlip(0.5),
 	# 	transforms.RandomVerticalFlip(p=0.5),
 		transforms.Resize((256,256))
 		# transforms.RandomRotation(degrees=(0, 9pyt0)),
@@ -772,7 +772,8 @@ def main():
 	# tensorboard
 	summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	# model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = resnet50(num_classes=1)
 	# model = ViT(
 	# image_size = 256,
 	# patch_size = 32,
@@ -803,7 +804,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-5)
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
