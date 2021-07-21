@@ -750,13 +750,13 @@ def main():
 	wt_decay = 0.00001
 	batch_size = 32
 
-	# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
-	# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
-	root_dir = '/home/cyberdome/Kaggle/seti/train'
-	train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
+	root_dir = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
+	train_csv = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
+	# root_dir = '/home/cyberdome/Kaggle/seti/train'
+	# train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
 
-	root_dir_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
-	train_csv_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
+	# root_dir_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
+	# train_csv_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
@@ -789,7 +789,7 @@ def main():
 	A.Transpose(),
 	A.ShiftScaleRotate(),	
 	A.RandomRotate90(),
-	A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
+	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)
 
 
@@ -798,7 +798,7 @@ def main():
 
 	test_transform = A.Compose([
 	A.Resize(256,256),
-	A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
+	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)
 	
 
