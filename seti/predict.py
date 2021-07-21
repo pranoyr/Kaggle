@@ -84,7 +84,7 @@ l = []
 for filename in os.listdir('/home/cyberdome/Kaggle/seti/test/test'):
 		file_path = '/home/cyberdome/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
-		x = transform(x)
+		x = transform(image=x)['image']
 		# x = transform(torch.from_numpy(x)).unsqueeze(0)
 		x = torch.from_numpy(x).unsqueeze(0)
 		# compute outputs
