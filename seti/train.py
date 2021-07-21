@@ -67,6 +67,7 @@ def make_dataset(train_val_dist):
 	class_weights = [num_samples/class_counts[i] for i in range(len(class_counts))]
 	weights = [class_weights[labels[i]] for i in range(int(num_samples))]
 	return data, weights
+	
 
 
 class SETIDataset(data.Dataset):
