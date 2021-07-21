@@ -70,12 +70,19 @@ np.random.seed(seed)
 torch.manual_seed(seed)
 
 
+transform = A.Compose([
+	A.Resize(256,256),
+	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
+	ToTensorV2(p=1.0)
+	
 
+	])
 
 l = []
 for filename in os.listdir('/home/cyberdome/Kaggle/seti/test/test'):
 		file_path = '/home/cyberdome/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
+		x = transform(x)
 		# x = transform(torch.from_numpy(x)).unsqueeze(0)
 		x = torch.from_numpy(x).unsqueeze(0)
 		# compute outputs
