@@ -84,9 +84,11 @@ l = []
 for filename in os.listdir('/home/cyberdome/Kaggle/seti/test/test'):
 		file_path = '/home/cyberdome/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
-		x = transform(image=x)['image']
+		x = torch.from_numpy(x).view(3,-1,256)
+		x = x.permute(1,2,0).numpy().astype('float32')
+		x = transform(image=x)['image'].unsqueeze(0)
 		# x = transform(torch.from_numpy(x)).unsqueeze(0)
-		x = torch.from_numpy(x).unsqueeze(0)
+		# x = torch.from_numpy(x).unsqueeze(0)
 		# compute outputs
 		x = x.type(torch.FloatTensor)
 		x = x.to(device)
