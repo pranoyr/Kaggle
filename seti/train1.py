@@ -765,10 +765,10 @@ def main():
 	val_csv = df[~msk]
 
 
-	df = pd.read_csv(train_csv_old)
-	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 1.0
-	train_csv_old = df[msk]
+	# df = pd.read_csv(train_csv_old)
+	# df['split'] = np.random.randn(df.shape[0], 1)
+	# msk = np.random.rand(len(df)) <= 1.0
+	# train_csv_old = df[msk]
 
 
 	seed = 0
@@ -781,24 +781,15 @@ def main():
 
 
 
+	
 	train_transform = A.Compose([
-			A.Resize(256,256),
-            A.HorizontalFlip(p=0.5),
-            A.VerticalFlip(p=0.5),
-            A.Rotate(limit=180, p=0.7),
-            A.RandomBrightness(limit=0.6, p=0.5),
-            A.Cutout(
-                num_holes=10, max_h_size=12, max_w_size=12,
-                fill_value=0, always_apply=False, p=0.5
-            ),
-            A.ShiftScaleRotate(
-                shift_limit=0.25, scale_limit=0.1, rotate_limit=0
-            ),
-            # A.OneOf([
-            #     GridMask(num_grid=3, mode=0, rotate=15),
-            #     GridMask(num_grid=3, mode=2, rotate=15),
-            #                     ], p=0.7),
-            ToTensorV2(p=1.0),
+	A.Resize(256,256),
+	A.HorizontalFlip(p=0.5),
+	A.VerticalFlip(p=0.5),
+	A.Transpose(),
+	A.ShiftScaleRotate(),	
+	A.RandomRotate90(),
+	ToTensorV2(p=1.0)
 
 	])
 
@@ -809,30 +800,10 @@ def main():
 
 	])
 
-	# train_transform = albumentations.Compose([
-	# albumentations.Resize(224, 224),
-	# albumentations.HorizontalFlip(p=0.5),
-	# albumentations.VerticalFlip(p=0.5),
-	# albumentations.Rotate(limit=180, p=0.7),
-	# albumentations.RandomBrightness(limit=0.6, p=0.5),
-	# albumentations.Cutout(
-	# 	num_holes=10, max_h_size=12, max_w_size=12,
-	# 	fill_value=0, always_apply=False, p=0.5
-	# ),
-	# albumentations.ShiftScaleRotate(
-	# 	shift_limit=0.25, scale_limit=0.1, rotate_limit=0
-	# ),
-	# ToTensorV2(p=1.0)])
-
-	# test_transform = albumentations.Compose([
-	# albumentations.Resize(224, 224),
-	# ToTensorV2(p=1.0)])
-
-
 	_, weights = make_dataset(train_csv)
 	training_data = []
 	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
-	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
+	# training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
 	training_data = torch.utils.data.ConcatDataset(training_data)
 	# training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
@@ -842,12 +813,12 @@ def main():
 											num_workers=0)
 
 
-	_, weights = make_dataset(val_csv)
+	# _, weights = make_dataset(val_csv)
 	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
-	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+	# sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
-											sampler = sampler,
+											# sampler = sampler,
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
@@ -860,7 +831,7 @@ def main():
 	# tensorboard
 	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
 	# define model
-	model = ResidualNet("ImageNet", 101, 1, "CBAM")
+	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
 	# model = resnet101(num_classes=1)
 	# model = ViT(
 	# image_size = 256,
@@ -875,7 +846,7 @@ def main():
 	# emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
