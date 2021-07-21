@@ -908,7 +908,7 @@ def main():
 				"lr":lr})
 
 
-			# scheduler.step(val_loss)
+			scheduler.step(val_loss)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
