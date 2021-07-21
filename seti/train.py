@@ -779,7 +779,7 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
 	wandb.login()
-	wandb.init(name='train.py-old_leaky-res101', 
+	wandb.init(name='train-old_leaky-res101', 
            project='Seti',
            entity='Pranoy')
 
@@ -865,7 +865,7 @@ def main():
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'seti-model.pth')
+				torch.save(state, 'seti-train.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
