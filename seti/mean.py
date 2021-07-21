@@ -3,6 +3,7 @@ import random
 import numpy as np
 import torch
 from torch.utils.data import DataLoader
+import pandas as pd
 
 
 from torch.utils import data
@@ -88,6 +89,11 @@ train_transform = A.Compose([
 
 	])
 
+df = pd.read_csv(train_csv)
+df['split'] = np.random.randn(df.shape[0], 1)
+msk = np.random.rand(len(df)) <= 1.0
+train_csv = df[msk]
+val_csv = df[~msk]
 
 train_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'val')
 train_loader = torch.utils.data.DataLoader(train_data,
