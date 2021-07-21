@@ -51,11 +51,10 @@ attn_scores_softmax = softmax(attn_scores, dim=-1)
 
 print(attn_scores_softmax.shape)
 
-weighted_values = torch.mul(values[:,None],  attn_scores_softmax.T[:,:,None])
+weighted_values = values[:,None] * attn_scores_softmax.T[:,:,None]
 
 print(values[:,None].shape)
 print(attn_scores_softmax.T[:,:,None].shape)
-print(weighted_values.shape)
 
 
 outputs = weighted_values.sum(dim=0)
