@@ -5,6 +5,7 @@ import numpy as np
 import random
 
 from sklearn.metrics import classification_report
+from eff import EfficientNet
 import tensorboardX
 import pandas as pd  
 import argparse
@@ -34,10 +35,11 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-model = ResidualNet("ImageNet", 101, 1, "CBAM")
+# model = ResidualNet("ImageNet", 101, 1, "CBAM")
+model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./seti-model.pth')
+checkpoint = torch.load('./final_model.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
