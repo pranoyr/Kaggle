@@ -913,7 +913,7 @@ def main():
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'seti-train1.pth')
+				torch.save(state, 'old+new_combined_model.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				

@@ -745,7 +745,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 # In[ ]:
 
 def main():
-	resume_path = './seti-model.pth'
+	resume_path = './leaky_model.pth'
 	start_epoch = 1
 	wt_decay = 0.00001
 	batch_size = 32
@@ -914,7 +914,7 @@ def main():
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'seti-train-new.pth')
+				torch.save(state, 'new_data_model_from_pt.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
