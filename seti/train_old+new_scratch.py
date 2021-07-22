@@ -871,7 +871,7 @@ def main():
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
-	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=5)
+	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=7)
 	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
 
 	th = -1
