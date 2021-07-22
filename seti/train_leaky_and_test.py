@@ -757,14 +757,14 @@ def main():
 	test_csv = '/home/cyberdome/Kaggle/seti/old_leaky_data/test_labels_old.csv'
 
 
-	# df = pd.read_csv(train_csv)
+	train_csv = pd.read_csv(train_csv)
 	# df['split'] = np.random.randn(df.shape[0], 1)
 	# msk = np.random.rand(len(df)) <= 0.8
 	# train_csv = df[msk]
 	# val_csv = df[~msk]
 
 
-	# df = pd.read_csv(train_csv_old)
+	test_csv = pd.read_csv(test_csv)
 	# df['split'] = np.random.randn(df.shape[0], 1)
 	# msk = np.random.rand(len(df)) <= 1.0
 	# train_csv_old = df[msk]
