@@ -758,9 +758,7 @@ def main():
 	_, weights = make_dataset(train_csv)
 	training_data = []
 	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
-	# training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
 	training_data = torch.utils.data.ConcatDataset(training_data)
-	# training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	train_loader = torch.utils.data.DataLoader(training_data,
 											batch_size=batch_size,
@@ -779,7 +777,7 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
 	wandb.login()
-	wandb.init(name='train-old_leaky-res101', 
+	wandb.init(name='train-leaky', 
            project='Seti',
            entity='Pranoy')
 
