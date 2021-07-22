@@ -748,7 +748,7 @@ def main():
 	resume_path = None
 	start_epoch = 1
 	wt_decay = 0.00001
-	batch_size = 32
+	batch_size = 24
 
 	root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
 	train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
