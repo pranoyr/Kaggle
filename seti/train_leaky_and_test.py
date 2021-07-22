@@ -810,7 +810,7 @@ def main():
 											sampler = sampler,
 											num_workers=0)
 
-
+	_, weights = make_dataset(test_csv)
 	validation_data = SETIDataset(root_dir_test, test_csv, transform=test_transform, image_set = 'val')
 	# sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
