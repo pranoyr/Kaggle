@@ -6,6 +6,7 @@ import random
 
 from sklearn.metrics import classification_report
 from eff import EfficientNet
+from tqdm import tqdm
 import tensorboardX
 import pandas as pd  
 import albumentations as A
@@ -81,7 +82,7 @@ transform = A.Compose([
 	])
 
 l = []
-for filename in os.listdir('/home/cyberdome/Kaggle/seti/test/test'):
+for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
 		file_path = '/home/cyberdome/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
 		x = torch.from_numpy(x).view(3,-1,256)
