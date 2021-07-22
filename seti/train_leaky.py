@@ -11,15 +11,13 @@
 from eff import EfficientNet
 from vit_pytorch.vit import ViT
 from torch.optim import lr_scheduler
-from albumentations.augmentations import functional as AF
-from albumentations.core.transforms_interface import DualTransform
 from torch.nn import BCEWithLogitsLoss
-import albumentations as A
-from albumentations.pytorch.transforms import ToTensorV2
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import confusion_matrix
-from transforms import RandomHorizontalFlip, RandomVerticalFlip
+import albumentations as A
 from albumentations.pytorch.transforms import ToTensorV2
+import wandb
+from transforms import RandomHorizontalFlip, RandomVerticalFlip
 from transforms import GaussianNoise
 from vgg import vgg16
 import numpy as np
@@ -62,12 +60,14 @@ def make_dataset(train_val_dist):
 	class_one_count = len(np.argwhere(labels==1).squeeze(1))
 	class_zero_count = len(np.argwhere(labels==0).squeeze(1))
 
+
 	class_counts = [class_zero_count, class_one_count]   # [0.1,1]
 	num_samples = sum(class_counts)
 
 	class_weights = [num_samples/class_counts[i] for i in range(len(class_counts))]
 	weights = [class_weights[labels[i]] for i in range(int(num_samples))]
 	return data, weights
+	
 
 
 class SETIDataset(data.Dataset):
@@ -509,76 +509,6 @@ def accuracy(output, target, topk=(1,)):
 
 
 
-class GridMask(DualTransform):
-    
-    def __init__(self, num_grid=3, fill_value=0, rotate=0, mode=0, always_apply=False, p=0.5):
-        super(GridMask, self).__init__(always_apply, p)
-        if isinstance(num_grid, int):
-            num_grid = (num_grid, num_grid)
-        if isinstance(rotate, int):
-            rotate = (-rotate, rotate)
-        self.num_grid = num_grid
-        self.fill_value = fill_value
-        self.rotate = rotate
-        self.mode = mode
-        self.masks = None
-        self.rand_h_max = []
-        self.rand_w_max = []
-
-    def init_masks(self, height, width):
-        if self.masks is None:
-            self.masks = []
-            n_masks = self.num_grid[1] - self.num_grid[0] + 1
-            for n, n_g in enumerate(range(self.num_grid[0], self.num_grid[1] + 1, 1)):
-                grid_h = height / n_g
-                grid_w = width / n_g
-                this_mask = np.ones((int((n_g + 1) * grid_h), int((n_g + 1) * grid_w))).astype(np.uint8)
-                for i in range(n_g + 1):
-                    for j in range(n_g + 1):
-                        this_mask[
-                             int(i * grid_h) : int(i * grid_h + grid_h / 2),
-                             int(j * grid_w) : int(j * grid_w + grid_w / 2)
-                        ] = self.fill_value
-                        if self.mode == 2:
-                            this_mask[
-                                 int(i * grid_h + grid_h / 2) : int(i * grid_h + grid_h),
-                                 int(j * grid_w + grid_w / 2) : int(j * grid_w + grid_w)
-                            ] = self.fill_value
-                
-                if self.mode == 1:
-                    this_mask = 1 - this_mask
-
-                self.masks.append(this_mask)
-                self.rand_h_max.append(grid_h)
-                self.rand_w_max.append(grid_w)
-
-    def apply(self, image, mask, rand_h, rand_w, angle, **params):
-        h, w = image.shape[:2]
-        mask = AF.rotate(mask, angle) if self.rotate[1] > 0 else mask
-        mask = mask[:,:,np.newaxis] if image.ndim == 3 else mask
-        image *= mask[rand_h:rand_h+h, rand_w:rand_w+w].astype(image.dtype)
-        return image
-
-    def get_params_dependent_on_targets(self, params):
-        img = params['image']
-        height, width = img.shape[:2]
-        self.init_masks(height, width)
-
-        mid = np.random.randint(len(self.masks))
-        mask = self.masks[mid]
-        rand_h = np.random.randint(self.rand_h_max[mid])
-        rand_w = np.random.randint(self.rand_w_max[mid])
-        angle = np.random.randint(self.rotate[0], self.rotate[1]) if self.rotate[1] > 0 else 0
-
-        return {'mask': mask, 'rand_h': rand_h, 'rand_w': rand_w, 'angle': angle}
-
-    @property
-    def targets_as_params(self):
-        return ['image']
-
-    def get_transform_init_args_names(self):
-        return ('num_grid', 'fill_value', 'rotate', 'mode')
-
 
 target_names = ['class 0', 'class 1']
 class AverageMeter1:
@@ -742,6 +672,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 	print(f' * Train Loss {losses.avg:.3f}, Ap {metrics.avg:.3f}')
 	return losses.avg, metrics.avg
 
+
 # In[ ]:
 
 def main():
@@ -777,8 +708,7 @@ def main():
 	torch.manual_seed(seed)
 
 	use_cuda = torch.cuda.is_available()
-	device = torch.device("cuda:1" if use_cuda else "cpu")
-
+	device = torch.device("cuda" if use_cuda else "cpu")
 
 
 	train_transform = A.Compose([
@@ -803,6 +733,28 @@ def main():
 
 	])
 
+
+
+	# train_transform = albumentations.Compose([
+	# albumentations.Resize(224, 224),
+	# albumentations.HorizontalFlip(p=0.5),
+	# albumentations.VerticalFlip(p=0.5),
+	# albumentations.Rotate(limit=180, p=0.7),
+	# albumentations.RandomBrightness(limit=0.6, p=0.5),
+	# albumentations.Cutout(
+	# 	num_holes=10, max_h_size=12, max_w_size=12,
+	# 	fill_value=0, always_apply=False, p=0.5
+	# ),
+	# albumentations.ShiftScaleRotate(
+	# 	shift_limit=0.25, scale_limit=0.1, rotate_limit=0
+	# ),
+	# ToTensorV2(p=1.0)])
+
+	# test_transform = albumentations.Compose([
+	# albumentations.Resize(224, 224),
+	# ToTensorV2(p=1.0)])
+
+
 	_, weights = make_dataset(train_csv)
 	training_data = []
 	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
@@ -825,16 +777,16 @@ def main():
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
-	import wandb
+
 	wandb.login()
-	wandb.init(name='Seti-train1(leaky_data)', 
+	wandb.init(name='train-old_leaky-res101', 
            project='Seti',
            entity='Pranoy')
 
 	# tensorboard
-	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
+	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
 	# define model
-	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
+	model = ResidualNet("ImageNet", 101, 1, "CBAM")
 	# model = resnet101(num_classes=1)
 	# model = ViT(
 	# image_size = 256,
@@ -849,7 +801,7 @@ def main():
 	# emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -898,6 +850,7 @@ def main():
 			# summary_writer.add_scalar(
 			# 	'losses/val_roc', val_acc, global_step=epoch)
 
+
 			wandb.log({
 				"Epoch": epoch,
 				"Train Loss": train_loss,
@@ -906,14 +859,13 @@ def main():
 				"Valid Acc": val_acc,
 				"lr":lr})
 
-
 			scheduler.step(val_loss)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'seti-train1.pth')
+				torch.save(state, 'seti-train.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
