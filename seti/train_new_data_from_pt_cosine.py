@@ -709,7 +709,7 @@ def val_epoch(model, data_loader, criterion, epoch, device):
 		return losses.avg, metrics.avg
 
 
-def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
+def train_epoch(model, data_loader, criterion, optimizer, epoch, device, scheduler):
 
 	model.train()
 
@@ -719,6 +719,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		len(data_loader),
 		[losses, metrics],
 		prefix=f'Epoch {epoch}: ')
+	iters = len(data_loader)
 	# Training
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
@@ -733,6 +734,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
+		scheduler.step(epoch + batch_idx / iters)
 
 		# show information
 		if batch_idx % 10 == 0:
@@ -869,7 +871,8 @@ def main():
 	# 	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
 	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
-	scheduler = lr_scheduler.CosineAnnealingLR(optimizer)
+	# scheduler = lr_scheduler.CosineAnnealingLR(optimizer)
+	scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,1)
 	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
 
 	th = -1
@@ -877,7 +880,7 @@ def main():
 	for epoch in range(start_epoch, 1000):
 		# train, test model
 		train_loss, train_acc = train_epoch(
-			model, train_loader, criterion, optimizer, epoch, device)
+			model, train_loader, criterion, optimizer, epoch, device, scheduler)
 
 		# validate
 		if (epoch) % 1 == 0:
@@ -905,7 +908,7 @@ def main():
 				"lr":lr})
 
 
-			scheduler.step()
+			# scheduler.step()
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
