@@ -788,7 +788,7 @@ def main():
 	A.VerticalFlip(p=0.5),
 	A.Transpose(),
 	A.ShiftScaleRotate(),	
-	A.Rotate(limit=180, p=0.5),
+	
 	A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=5, holes_number_y=5)
 	A.GridDropout(),
@@ -868,7 +868,8 @@ def main():
 	# 	checkpoint = torch.load(resume_path)
 	# 	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
-	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
+	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
+	scheduler = lr_scheduler.CosineAnnealingLR(optimizer)
 	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
 
 	th = -1
@@ -904,7 +905,7 @@ def main():
 				"lr":lr})
 
 
-			#scheduler.step(val_loss)
+			scheduler.step()
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),

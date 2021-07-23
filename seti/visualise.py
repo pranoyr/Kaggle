@@ -50,7 +50,7 @@ transform = A.Compose([
 	A.VerticalFlip(p=0.5),
 	A.Transpose(),
 	A.ShiftScaleRotate(),	
-	# A.Rotate(limit=180, p=0.5),
+	# 
 	A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=10, holes_number_y=10)
 	# A.GridDropout()
