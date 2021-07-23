@@ -720,7 +720,7 @@ def main():
 	A.Rotate(limit=180, p=0.5),
 	A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=5, holes_number_y=5)
-	A.GridDropout(),
+	# A.GridDropout(),
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)])
 
