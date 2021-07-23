@@ -752,22 +752,21 @@ def main():
 	wt_decay = 0.00001
 	batch_size = 16
 
-	# root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
-	# train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
-	root_dir = '/home/neuroplex/Kaggle/seti/train'
-	train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
+	root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
+	train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
 
-	# root_dir_old = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
-	# train_csv_old = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
-
-	df = pd.read_csv(train_csv)
-	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 0.8
-	train_csv = df[msk]
-	val_csv = df[~msk]
+	root_dir_test = '/home/neuroplex/Kaggle/seti/old_leaky_data/test_old'
+	test_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/test_labels_old.csv'
 
 
-	# df = pd.read_csv(train_csv_old)
+	train_csv = pd.read_csv(train_csv)
+	# df['split'] = np.random.randn(df.shape[0], 1)
+	# msk = np.random.rand(len(df)) <= 0.8
+	# train_csv = df[msk]
+	# val_csv = df[~msk]
+
+
+	test_csv = pd.read_csv(test_csv)
 	# df['split'] = np.random.randn(df.shape[0], 1)
 	# msk = np.random.rand(len(df)) <= 1.0
 	# train_csv_old = df[msk]
@@ -814,19 +813,18 @@ def main():
 											sampler = sampler,
 											num_workers=0)
 
-
-	_, weights = make_dataset(val_csv)
-	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
-	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+	# _, weights = make_dataset(test_csv)
+	validation_data = SETIDataset(root_dir_test, test_csv, transform=test_transform, image_set = 'val')
+	# sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
-											sampler = sampler,
+											# sampler = sampler,
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 	import wandb
 	wandb.login()
-	wandb.init(name='train_new_data_from_pt_cosine', 
+	wandb.init(name='train_leaky_and_test_covit)', 
 		   project='Seti',
 		   entity='Pranoy')
 
@@ -924,7 +922,7 @@ def main():
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'new_data_model_from_pt_cosine.pth')
+				torch.save(state, 'covit_old_leaky.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
