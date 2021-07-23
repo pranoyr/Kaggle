@@ -750,7 +750,7 @@ def main():
 	resume_path = './pretrained_leakydata.pth'
 	start_epoch = 0
 	wt_decay = 0.00001
-	batch_size = 16
+	batch_size = 32
 
 	root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
 	train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
