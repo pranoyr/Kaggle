@@ -777,7 +777,7 @@ def main():
 	torch.manual_seed(seed)
 
 	use_cuda = torch.cuda.is_available()
-	device = torch.device("cuda:0" if use_cuda else "cpu")
+	device = torch.device("cuda:1" if use_cuda else "cpu")
 
 
 
@@ -904,13 +904,13 @@ def main():
 				"lr":lr})
 
 
-			scheduler.step(val_loss)
+			#scheduler.step(val_loss)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'new_data_model_from_pt.pth')
+				torch.save(state, 'new_data_model_from_pt_no_rotate.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
