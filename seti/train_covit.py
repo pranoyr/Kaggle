@@ -747,7 +747,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 # In[ ]:
 
 def main():
-	resume_path = './pretrained_leakydata.pth'
+	resume_path = None
 	start_epoch = 0
 	wt_decay = 0.00001
 	batch_size = 32
@@ -824,29 +824,18 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 	import wandb
 	wandb.login()
+	config_defaults = {
+        'epochs': 1000,
+        'batch_size': 32,
+        'optimizer': 'adamw',
+    }
+
 	wandb.init(name='train_leaky_and_test_covit', 
 		   project='Seti',
+		   config=config_defaults,
 		   entity='Pranoy')
 
-	# tensorboard
-	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
-	# define model
-	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
-	# model = resnet101(num_classes=1)
-	# model = ViT(
-	# image_size = 256,
-	# patch_size = 32,
-	# num_classes = 1,
-	# dim = 1024,
-	# channels = 6,
-	# depth = 6,
-	# heads = 8,
-	# mlp_dim = 2048,
-	# dropout = 0.1,
-	# emb_dropout = 0.1
-	#)
-	# model = vgg16(pretrained=False ,num_classes=1)
-	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+
 	from timm.models import convit_small
 	model= convit_small(img_size=256, num_classes=1, pretrained=False)
 
