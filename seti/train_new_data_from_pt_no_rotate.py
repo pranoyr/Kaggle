@@ -824,7 +824,7 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 	import wandb
 	wandb.login()
-	wandb.init(name='train_new_data_from_pt', 
+	wandb.init(name='train_new_data_from_pt_no_rotate', 
            project='Seti',
            entity='Pranoy')
 
