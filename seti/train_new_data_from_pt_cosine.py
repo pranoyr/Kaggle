@@ -824,7 +824,7 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 	import wandb
 	wandb.login()
-	wandb.init(name='train_new_data_from_pt', 
+	wandb.init(name='train_new_data_from_pt_cosine', 
            project='Seti',
            entity='Pranoy')
 
@@ -911,7 +911,7 @@ def main():
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'new_data_model_from_pt.pth')
+				torch.save(state, 'new_data_model_from_pt_cosine.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
