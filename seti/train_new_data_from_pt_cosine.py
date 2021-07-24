@@ -864,7 +864,7 @@ def main():
 		model.load_state_dict(checkpoint['model_state_dict'])
 		epoch = checkpoint['epoch']
 		print("Model Restored from Epoch {}".format(epoch))
-		start_epoch = epoch + 1
+		# start_epoch = epoch + 1
 	model.to(device)
 
 
@@ -885,6 +885,8 @@ def main():
 		# validate
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+			scheduler.step(epoch)
+
 			lr = optimizer.param_groups[0]['lr']
 			
 			wandb.log({
@@ -896,7 +898,7 @@ def main():
 				"lr":lr})
 
 
-			scheduler.step(epoch)
+			
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
