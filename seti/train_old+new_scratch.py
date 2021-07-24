@@ -851,9 +851,9 @@ def main():
 	criterion = nn.BCEWithLogitsLoss()
 	from timm.optim import RAdam
 	optimizer = RAdam(model.parameters())
-	if resume_path:
-		checkpoint = torch.load(resume_path)
-		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+	# if resume_path:
+	# 	checkpoint = torch.load(resume_path)
+	# 	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
 	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
 	# scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,1)
