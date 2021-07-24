@@ -748,7 +748,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 
 def main():
 	resume_path = './pretrained_leakydata.pth'
-	start_epoch = 1
+	start_epoch = 0
 	wt_decay = 0.00001
 	batch_size = 16
 
@@ -762,7 +762,7 @@ def main():
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 0.8
+	msk = np.random.rand(len(df)) <= 0.1
 	train_csv = df[msk]
 	val_csv = df[~msk]
 
@@ -826,8 +826,11 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 	import wandb
 	wandb.login()
+	default_config = {"scheduler":"cosine","batch_size":32,
+	"dataset":"old_leaky","model":"eff07","optimizer":"RAdam"}
 	wandb.init(name='train_new_data_from_pt_cosine', 
            project='Seti',
+		   config=default_config,
            entity='Pranoy')
 
 	# tensorboard
@@ -865,15 +868,11 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
-	# if resume_path:
-	# 	checkpoint = torch.load(resume_path)
-	# 	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-			
-	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
-	# scheduler = lr_scheduler.CosineAnnealingLR(optimizer)
-	scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,1)
-	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
+	from timm.optim import RAdam
+	optimizer = RAdam(model.parameters())
+	
+	from timm.scheduler import CosineLRScheduler
+	scheduler = CosineLRScheduler(optimizer, 10)
 
 	th = -1
 	# start training
@@ -886,19 +885,7 @@ def main():
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 			lr = optimizer.param_groups[0]['lr']
-			# write summary
-			# summary_writer.add_scalar(
-			# 	'losses/train_loss', train_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'acc/train_roc', train_acc, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'lr_rate', lr, global_step=epoch)
-
-			# summary_writer.add_scalar(
-			# 	'losses/val_loss', val_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'losses/val_roc', val_acc, global_step=epoch)
-
+			
 			wandb.log({
 				"Epoch": epoch,
 				"Train Loss": train_loss,
@@ -908,13 +895,13 @@ def main():
 				"lr":lr})
 
 
-			# scheduler.step()
+			scheduler.step(epoch)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'new_data_model_from_pt_cosine.pth')
+				torch.save(state, 'new_data_model_from_pt.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
