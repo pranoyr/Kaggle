@@ -824,6 +824,7 @@ def main():
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
+	print(f'Number of training examples: {len(val_loader.dataset)}')
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"cosine","batch_size":32,
