@@ -746,7 +746,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 def main():
 	resume_path = None
-	start_epoch = 1
+	start_epoch = 0
 	wt_decay = 0.00001
 	batch_size = 32
 
@@ -790,7 +790,7 @@ def main():
 	
 	A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=5, holes_number_y=5)
-	# A.GridDropout(),
+	A.GridDropout(),
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)])
 
@@ -831,24 +831,7 @@ def main():
            project='Seti',
            entity='Pranoy')
 
-	# tensorboard
-	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
-	# define model
-	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
-	# model = resnet101(num_classes=1)
-	# model = ViT(
-	# image_size = 256,
-	# patch_size = 32,
-	# num_classes = 1,
-	# dim = 1024,
-	# channels = 6,
-	# depth = 6,
-	# heads = 8,
-	# mlp_dim = 2048,
-	# dropout = 0.1,
-	# emb_dropout = 0.1
-	#)
-	# model = vgg16(pretrained=False ,num_classes=1)
+
 	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 
 	# if torch.cuda.device_count() > 1:
@@ -866,13 +849,17 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+	from timm.optim import RAdam
+	optimizer = RAdam(model.parameters())
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
-	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
+	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
+	# scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,1)
 	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
+	from timm.scheduler import CosineLRScheduler
+	scheduler = CosineLRScheduler(optimizer, 10)
 
 	th = -1
 	# start training
@@ -885,19 +872,7 @@ def main():
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 			lr = optimizer.param_groups[0]['lr']
-			# write summary
-			# summary_writer.add_scalar(
-			# 	'losses/train_loss', train_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'acc/train_roc', train_acc, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'lr_rate', lr, global_step=epoch)
-
-			# summary_writer.add_scalar(
-			# 	'losses/val_loss', val_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'losses/val_roc', val_acc, global_step=epoch)
-
+	
 			wandb.log({
 				"Epoch": epoch,
 				"Train Loss": train_loss,
@@ -907,13 +882,13 @@ def main():
 				"lr":lr})
 
 
-			#scheduler.step(val_loss)
+			scheduler.step(epoch)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
 				
-				torch.save(state, 'old+new_combined_model.pth')
+				torch.save(state, 'combined_dataset_effnet.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 				
