@@ -903,7 +903,7 @@ def main():
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 
-			scheduler.step(epoch)
+		scheduler.step(epoch)
 				
 if __name__=='__main__':
 	main()
