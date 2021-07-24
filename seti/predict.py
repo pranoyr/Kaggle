@@ -43,7 +43,7 @@ file = 'submission_no_rotate.csv'
 model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./new_data_model_from_pt.pth')
+checkpoint = torch.load('./new_data_model_from_pt_no_rotate.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
