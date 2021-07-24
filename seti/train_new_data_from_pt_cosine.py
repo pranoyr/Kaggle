@@ -762,7 +762,7 @@ def main():
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 0.1
+	msk = np.random.rand(len(df)) <= 0.9
 	train_csv = df[msk]
 	val_csv = df[~msk]
 
