@@ -37,13 +37,13 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
-file = 'submission_no_rotate.csv'
+file = 'submission.csv'
 
 # model = ResidualNet("ImageNet", 101, 1, "CBAM")
 model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./new_data_model_from_pt_no_rotate.pth')
+checkpoint = torch.load('./new_data_model_from_pt_cosine.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
