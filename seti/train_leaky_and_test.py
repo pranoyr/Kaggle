@@ -821,7 +821,8 @@ def main():
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
-	default_config = {"scheduler":"cosine","batch_size":32,"dataset":"old_leaky","model":"eff07"}
+	default_config = {"scheduler":"cosine","batch_size":32,
+	"dataset":"old_leaky","model":"eff07","optimizer":"RAdam"}
 	
 	wandb.login()
 	wandb.init(name='train_leaky_and_test', 
