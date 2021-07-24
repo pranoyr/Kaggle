@@ -734,7 +734,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
-		scheduler.step(epoch + batch_idx / iters)
+		# scheduler.step(epoch + batch_idx / iters)
 
 		# show information
 		if batch_idx % 10 == 0:
@@ -827,7 +827,7 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"cosine","batch_size":32,
-	"dataset":"old_leaky","model":"eff07","optimizer":"RAdam"}
+	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"RAdam"}
 	wandb.init(name='train_new_data_from_pt_cosine', 
            project='Seti',
 		   config=default_config,
