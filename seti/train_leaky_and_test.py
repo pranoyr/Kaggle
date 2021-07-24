@@ -848,7 +848,7 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	from timm.optimizer import RAdam
+	from timm.optim import RAdam
 	optimizer = RAdam(model.parameters())
 	if resume_path:
 		checkpoint = torch.load(resume_path)
