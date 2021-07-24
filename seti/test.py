@@ -73,7 +73,7 @@ optimizer = RAdam(model.parameters())
 
 from timm.scheduler import CosineLRScheduler
 scheduler = CosineLRScheduler(optimizer, 10)
-scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,10)
+# scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,10)
 
 th = -1
 # start training
@@ -90,7 +90,7 @@ for epoch in range(1,30):
 	print(lr,epoch)
 	print("********")
 
-	scheduler.step()
+	scheduler.step(epoch)
 
 	
 
