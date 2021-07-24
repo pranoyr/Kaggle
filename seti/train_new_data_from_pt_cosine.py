@@ -748,7 +748,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 
 def main():
 	resume_path = './pretrained_leakydata.pth'
-	start_epoch = 0
+	start_epoch = 1
 	wt_decay = 0.00001
 	batch_size = 16
 
@@ -885,8 +885,7 @@ def main():
 		# validate
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
-			scheduler.step(epoch)
-
+			
 			lr = optimizer.param_groups[0]['lr']
 			
 			wandb.log({
@@ -897,16 +896,14 @@ def main():
 				"Valid Acc": val_acc,
 				"lr":lr})
 
-
-			
-
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
-				
 				torch.save(state, 'new_data_model_from_pt.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
+
+			scheduler.step(epoch)
 				
 if __name__=='__main__':
 	main()
