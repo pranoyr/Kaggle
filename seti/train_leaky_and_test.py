@@ -13,6 +13,7 @@ from vit_pytorch.vit import ViT
 from torch.optim import lr_scheduler
 from albumentations.augmentations import functional as AF
 from albumentations.core.transforms_interface import DualTransform
+import wandb
 from torch.nn import BCEWithLogitsLoss
 import albumentations as A
 from albumentations.pytorch.transforms import ToTensorV2
@@ -746,9 +747,9 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 
 def main():
 	resume_path = None
-	start_epoch = 1
+	start_epoch = 0
 	wt_decay = 0.00001
-	batch_size = 16
+	batch_size = 32
 
 	root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
 	train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
@@ -810,39 +811,25 @@ def main():
 											sampler = sampler,
 											num_workers=0)
 
-	_, weights = make_dataset(test_csv)
+	# _, weights = make_dataset(test_csv)
 	validation_data = SETIDataset(root_dir_test, test_csv, transform=test_transform, image_set = 'val')
-	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+	# sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
-											sampler = sampler,
+											# sampler = sampler,
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
-	import wandb
+
+	default_config = {"scheduler":"cosine","batch_size":32,"dataset":"old_leaky","model":"eff07"}
+	
 	wandb.login()
 	wandb.init(name='train_leaky_and_test', 
            project='Seti',
+		   config = default_config,
            entity='Pranoy')
 
-	# tensorboard
-	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')
-	# define model
-	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
-	# model = resnet101(num_classes=1)
-	# model = ViT(
-	# image_size = 256,
-	# patch_size = 32,
-	# num_classes = 1,
-	# dim = 1024,
-	# channels = 6,
-	# depth = 6,
-	# heads = 8,
-	# mlp_dim = 2048,
-	# dropout = 0.1,
-	# emb_dropout = 0.1
-	#)
-	# model = vgg16(pretrained=False ,num_classes=1)
+
 	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 
 	# if torch.cuda.device_count() > 1:
@@ -860,13 +847,17 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
+	from timm.optimizer import RAdam
+	optimizer = RAdam(model.parameters())
 	if resume_path:
 		checkpoint = torch.load(resume_path)
 		optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 			
-	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
+	# scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
+	# scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,1)
 	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
+	from timm.scheduler import CosineLRScheduler
+	scheduler = CosineLRScheduler(optimizer, 10)
 
 	th = -1
 	# start training
@@ -879,19 +870,7 @@ def main():
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 			lr = optimizer.param_groups[0]['lr']
-			# write summary
-			# summary_writer.add_scalar(
-			# 	'losses/train_loss', train_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'acc/train_roc', train_acc, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'lr_rate', lr, global_step=epoch)
-
-			# summary_writer.add_scalar(
-			# 	'losses/val_loss', val_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'losses/val_roc', val_acc, global_step=epoch)
-
+	
 			wandb.log({
 				"Epoch": epoch,
 				"Train Loss": train_loss,
@@ -901,7 +880,7 @@ def main():
 				"lr":lr})
 
 
-			#scheduler.step(val_loss)
+			scheduler.step(epoch)
 
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
