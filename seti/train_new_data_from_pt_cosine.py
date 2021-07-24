@@ -815,12 +815,12 @@ def main():
 											num_workers=0)
 
 
-	_, weights = make_dataset(val_csv)
+	# _, weights = make_dataset(val_csv)
 	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
-	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
+	# sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
 	val_loader = torch.utils.data.DataLoader(validation_data,
 											batch_size=batch_size,
-											sampler = sampler,
+											# sampler = sampler,
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
