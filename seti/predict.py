@@ -37,6 +37,8 @@ use_cuda = torch.cuda.is_available()
 device = torch.device("cuda" if use_cuda else "cpu")
 
 
+file = 'submission_no_rotate.csv'
+
 # model = ResidualNet("ImageNet", 101, 1, "CBAM")
 model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 # model = nn.DataParallel(model)
@@ -81,6 +83,8 @@ transform = A.Compose([
 	])
 
 l = []
+
+
 for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
 		file_path = '/home/cyberdome/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
@@ -92,7 +96,8 @@ for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
 		# compute outputs
 		x = x.type(torch.FloatTensor)
 		x = x.to(device)
-		outputs = model(x)
+		with torch.no_grad():
+			outputs = model(x)
 		# outputs = nn.Softmax(dim=1)(outputs)
 		prob = torch.sigmoid(outputs).item()
 		# if (prob > 0.5):
@@ -107,4 +112,4 @@ for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
 		l.append([filename.replace('.npy', ''), prob])
 		
 df = pd.DataFrame(l)
-df.to_csv('submission.csv', index=False)
+df.to_csv(file, index=False)
