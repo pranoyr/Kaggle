@@ -42,7 +42,7 @@ device = torch.device("cuda" if use_cuda else "cpu")
 model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./new_data_eff.pth')
+checkpoint = torch.load('./new_data_model_from_pt.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 

@@ -729,30 +729,7 @@ def main():
 	A.Resize(256,256),
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)
-	
-
 	])
-
-
-
-	# train_transform = albumentations.Compose([
-	# albumentations.Resize(224, 224),
-	# albumentations.HorizontalFlip(p=0.5),
-	# albumentations.VerticalFlip(p=0.5),
-	# albumentations.Rotate(limit=180, p=0.7),
-	# albumentations.RandomBrightness(limit=0.6, p=0.5),
-	# albumentations.Cutout(
-	# 	num_holes=10, max_h_size=12, max_w_size=12,
-	# 	fill_value=0, always_apply=False, p=0.5
-	# ),
-	# albumentations.ShiftScaleRotate(
-	# 	shift_limit=0.25, scale_limit=0.1, rotate_limit=0
-	# ),
-	# ToTensorV2(p=1.0)])
-
-	# test_transform = albumentations.Compose([
-	# albumentations.Resize(224, 224),
-	# ToTensorV2(p=1.0)])
 
 
 	_, weights = make_dataset(train_csv)
@@ -764,7 +741,6 @@ def main():
 											batch_size=batch_size,
 											sampler = sampler,
 											num_workers=0)
-
 
 	# _, weights = make_dataset(val_csv)
 	validation_data = SETIDataset(root_dir, val_csv, transform=test_transform, image_set = 'val')
@@ -781,24 +757,6 @@ def main():
            project='Seti',
            entity='Pranoy')
 
-	# tensorboard
-	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs')
-	# define model
-	# model = ResidualNet("ImageNet", 101, 1, "CBAM")
-	# model = resnet101(num_classes=1)
-	# model = ViT(
-	# image_size = 256,
-	# patch_size = 32,
-	# num_classes = 1,
-	# dim = 1024,
-	# channels = 6,
-	# depth = 6,
-	# heads = 8,
-	# mlp_dim = 2048,
-	# dropout = 0.1,
-	# emb_dropout = 0.1
-	#)
-	# model = vgg16(pretrained=False ,num_classes=1)
 	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 
 	# if torch.cuda.device_count() > 1:
@@ -835,20 +793,7 @@ def main():
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 			lr = optimizer.param_groups[0]['lr']
-			# write summary
-			# summary_writer.add_scalar(
-			# 	'losses/train_loss', train_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'acc/train_roc', train_acc, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'lr_rate', lr, global_step=epoch)
-
-			# summary_writer.add_scalar(
-			# 	'losses/val_loss', val_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'losses/val_roc', val_acc, global_step=epoch)
-
-
+	
 			wandb.log({
 				"Epoch": epoch,
 				"Train Loss": train_loss,
