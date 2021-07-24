@@ -827,7 +827,10 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 	import wandb
 	wandb.login()
+	default_config = {"scheduler":"cosine","batch_size":32,
+	"dataset":"combined","model":"eff07","optimizer":"RAdam"}
 	wandb.init(name='train_old+new_from_from_srach', 
+		config = default_config,
            project='Seti',
            entity='Pranoy')
 
