@@ -745,8 +745,8 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 # In[ ]:
 
 def main():
-	resume_path = None
-	start_epoch = 0
+	resume_path = "pretrained_resnet50_cbam.pth"
+	start_epoch = 1
 	wt_decay = 0.00001
 	batch_size = 32
 
@@ -760,7 +760,7 @@ def main():
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 0.8
+	msk = np.random.rand(len(df)) <= 0.9
 	train_csv = df[msk]
 	val_csv = df[~msk]
 
@@ -806,7 +806,7 @@ def main():
 	_, weights = make_dataset(pd.concat([train_csv, train_csv_old], axis=0))
 	training_data = []
 	training_data.append(SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train'))
-	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'train'))
+	training_data.append(SETIDataset(root_dir_old, train_csv_old, transform=train_transform, image_set = 'val'))
 	training_data = torch.utils.data.ConcatDataset(training_data)
 	# training_data = SETIDataset(root_dir, train_csv, transform=train_transform, image_set = 'train')
 	sampler = data.WeightedRandomSampler(torch.DoubleTensor(weights), len(weights))
@@ -828,14 +828,15 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"cosine","batch_size":32,
-	"dataset":"combined","model":"eff07","optimizer":"RAdam"}
+	"dataset":"combined","model":"resnet101","optimizer":"RAdam"}
 	wandb.init(name='train_old+new_from_from_srach', 
 		config = default_config,
            project='Seti',
            entity='Pranoy')
 
 
-	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+	model = ResidualNet("ImageNet", 101, 1, "CBAM")
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -844,10 +845,10 @@ def main():
 
 	if resume_path:
 		checkpoint = torch.load(resume_path)
-		model.load_state_dict(checkpoint['model_state_dict'])
-		epoch = checkpoint['epoch']
-		print("Model Restored from Epoch {}".format(epoch))
-		start_epoch = epoch + 1
+		model.load_state_dict(checkpoint['state_dict'])
+		# epoch = checkpoint['epoch']
+		print("Model Restored")
+		# start_epoch = epoch + 1
 	model.to(device)
 
 
@@ -874,6 +875,7 @@ def main():
 		# validate
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+
 			lr = optimizer.param_groups[0]['lr']
 	
 			wandb.log({
@@ -885,8 +887,7 @@ def main():
 				"lr":lr})
 
 
-			scheduler.step(epoch)
-
+		
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
@@ -894,6 +895,8 @@ def main():
 				torch.save(state, 'combined_dataset_effnet.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
+
+		scheduler.step(epoch)
 				
 if __name__=='__main__':
 	main()
