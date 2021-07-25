@@ -846,7 +846,7 @@ def main():
 
 	if resume_path:
 		checkpoint = torch.load(resume_path)
-		model.load_state_dict(checkpoint['state_dict'], strict=False)
+		model.load_state_dict(checkpoint['state_dict'])
 		# epoch = checkpoint['epoch']
 		print("Model Restored")
 		# start_epoch = epoch + 1
