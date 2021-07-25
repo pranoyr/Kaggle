@@ -822,7 +822,7 @@ def main():
 	print(f'Number of training examples: {len(train_loader.dataset)}')
 
 	default_config = {"scheduler":"cosine","batch_size":32,
-	"dataset":"old_leaky","model":"eff07","optimizer":"RAdam"}
+	"dataset":"old_leaky","model":"res50","optimizer":"RAdam"}
 	
 	wandb.login()
 	wandb.init(name='train_leaky_and_test', 
@@ -831,7 +831,7 @@ def main():
            entity='Pranoy')
 
 
-	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+	model = ResidualNet("ImageNet", 50, 1, "CBAM")
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
