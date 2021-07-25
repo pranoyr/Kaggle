@@ -828,10 +828,11 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"cosine","batch_size":32,
-	"dataset":"combined","model":"resnet101","optimizer":"RAdam"}
-	wandb.init(name='train_old+new_from_from_srach', 
+	"dataset":"combined","model":"resnet50","optimizer":"RAdam"}
+	wandb.init(name='train_old+new', 
 		config = default_config,
            project='Seti',
+		   config = default_config,
            entity='Pranoy')
 
 
