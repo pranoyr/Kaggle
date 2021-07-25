@@ -859,14 +859,14 @@ def main():
 	# scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,1)
 	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
 	from timm.scheduler import CosineLRScheduler
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
-	for epoch in range(start_epoch, 1000):
+	for epoch in range(start_epoch, 100):
 		# train, test model
 		train_loss, train_acc = train_epoch(
-			model, train_loader, criterion, optimizer, epoch, device)
+			model, train_loader, criterion, optimizer, epoch, device, scheduler)
 
 		# validate
 		if (epoch) % 1 == 0:
