@@ -751,11 +751,11 @@ def main():
 	wt_decay = 0.00001
 	batch_size = 32
 
-	root_dir = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
-	train_csv = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
+	root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
+	train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
 
-	root_dir_test = '/home/cyberdome/Kaggle/seti/old_leaky_data/test_old'
-	test_csv = '/home/cyberdome/Kaggle/seti/old_leaky_data/test_labels_old.csv'
+	root_dir_test = '/home/neuroplex/Kaggle/seti/old_leaky_data/test_old'
+	test_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/test_labels_old.csv'
 
 
 	train_csv = pd.read_csv(train_csv)
