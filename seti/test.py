@@ -10,6 +10,7 @@
 
 from eff import EfficientNet
 from vit_pytorch.vit import ViT
+import matplotlib.pyplot as plt
 from torch.optim import lr_scheduler
 from albumentations.augmentations import functional as AF
 from albumentations.core.transforms_interface import DualTransform
@@ -50,8 +51,9 @@ from sklearn.metrics import average_precision_score
 
 
 
+
 	# model = vgg16(pretrained=False ,num_classes=1)
-model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+model = torch.nn.Linear(30,20)
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -72,26 +74,38 @@ from timm.optim import RAdam
 optimizer = RAdam(model.parameters())
 
 from timm.scheduler import CosineLRScheduler
-scheduler = CosineLRScheduler(optimizer, 10)
+# scheduler = CosineLRScheduler(optimizer, 10)
 # scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,10)
+scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=50,eta_min=1e-7)
 
 th = -1
+l = []
 # start training
-for epoch in range(1,30):
-	# train, test model
-	# train_loss, train_acc = train_epoch(
-	# model, train_loader, criterion, optimizer, epoch, device, scheduler)
+for epoch in range(1,50):
+	# for i in range(20):
+		# train, test model
+		# train_loss, train_acc = train_epoch(
+		# model, train_loader, criterion, optimizer, epoch, device, scheduler)
 
-	# # validate
-	# if (epoch) % 1 == 0:
-	# val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+		# # validate
+		# if (epoch) % 1 == 0:
+		# val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 
+		# lr = optimizer.param_groups[0]['lr']
+		# l.append(lr)
+		# print(lr,epoch)
+		# print("********")
+
+		# scheduler.step(epoch + i/epoch)
+	scheduler.step()
 	lr = optimizer.param_groups[0]['lr']
+	l.append(lr)
 	print(lr,epoch)
-	print("********")
-
-	scheduler.step(epoch)
-
+	# scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, 10)
+	# scheduler = CosineLRScheduler(optimizer, 10)
+	print("******")
+plt.plot(l)
+plt.show()
 	
 
 	
