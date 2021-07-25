@@ -836,7 +836,7 @@ def main():
 
 
 	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
-	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = ResidualNet("ImageNet", 50, 1000, "CBAM")
 	model = nn.DataParallel(model)
 
 	# if torch.cuda.device_count() > 1:
@@ -850,6 +850,8 @@ def main():
 		# epoch = checkpoint['epoch']
 		print("Model Restored")
 		# start_epoch = epoch + 1
+
+	model.fc2 = nn.Linear(2048, 1)
 	model.to(device)
 
 
