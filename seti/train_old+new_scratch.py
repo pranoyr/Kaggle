@@ -837,6 +837,7 @@ def main():
 
 	# model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 	model = ResidualNet("ImageNet", 50, 1, "CBAM")
+	model = nn.DataParallel(model)
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
@@ -845,7 +846,7 @@ def main():
 
 	if resume_path:
 		checkpoint = torch.load(resume_path)
-		model.load_state_dict(checkpoint['state_dict'])
+		model.load_state_dict(checkpoint['state_dict'], strict=False)
 		# epoch = checkpoint['epoch']
 		print("Model Restored")
 		# start_epoch = epoch + 1
