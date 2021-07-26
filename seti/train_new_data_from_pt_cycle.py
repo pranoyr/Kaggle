@@ -709,7 +709,7 @@ def val_epoch(model, data_loader, criterion, epoch, device):
 		return losses.avg, metrics.avg
 
 
-def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
+def train_epoch(model, data_loader, criterion, optimizer, epoch, device, scheduler):
 
 	model.train()
 
@@ -719,6 +719,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		len(data_loader),
 		[losses, metrics],
 		prefix=f'Epoch {epoch}: ')
+	iters = len(data_loader)
 	# Training
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
@@ -733,6 +734,8 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
+		scheduler.step()
+		# scheduler.step(epoch + batch_idx / iters)
 
 		# show information
 		if batch_idx % 10 == 0:
@@ -745,22 +748,22 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device):
 # In[ ]:
 
 def main():
-	resume_path = './pretrained_leakydata.pth'
+	resume_path = './leaky_model.pth'
 	start_epoch = 1
 	wt_decay = 0.00001
 	batch_size = 32
 
-	# root_dir = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
-	# train_csv = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
+	# root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
+	# train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
 	root_dir = '/home/cyberdome/Kaggle/seti/train'
 	train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
 
-	# root_dir_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_old'
-	# train_csv_old = '/home/cyberdome/Kaggle/seti/old_leaky_data/train_labels_old.csv'
+	# root_dir_old = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
+	# train_csv_old = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
 
 	df = pd.read_csv(train_csv)
 	df['split'] = np.random.randn(df.shape[0], 1)
-	msk = np.random.rand(len(df)) <= 0.8
+	msk = np.random.rand(len(df)) <= 0.9
 	train_csv = df[msk]
 	val_csv = df[~msk]
 
@@ -777,7 +780,7 @@ def main():
 	torch.manual_seed(seed)
 
 	use_cuda = torch.cuda.is_available()
-	device = torch.device("cuda:1" if use_cuda else "cpu")
+	device = torch.device("cuda:0" if use_cuda else "cpu")
 
 
 
@@ -788,7 +791,7 @@ def main():
 	A.VerticalFlip(p=0.5),
 	A.Transpose(),
 	A.ShiftScaleRotate(),	
-	# 
+	
 	A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=5, holes_number_y=5)
 	A.GridDropout(),
@@ -822,10 +825,14 @@ def main():
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
+	print(f'Number of training examples: {len(val_loader.dataset)}')
 	import wandb
 	wandb.login()
-	wandb.init(name='train_new_data_from_pt_no_rotate', 
+	default_config = {"scheduler":"One Cycle","batch_size":32,
+	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"RAdam", "epochs":100}
+	wandb.init(name='train_new_data_from_pt_cycle', 
            project='Seti',
+		   config=default_config,
            entity='Pranoy')
 
 	# tensorboard
@@ -858,43 +865,32 @@ def main():
 		model.load_state_dict(checkpoint['model_state_dict'])
 		epoch = checkpoint['epoch']
 		print("Model Restored from Epoch {}".format(epoch))
-		start_epoch = epoch + 1
+		# start_epoch = epoch + 1
 	model.to(device)
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=0)
-	# if resume_path:
-	# 	checkpoint = torch.load(resume_path)
-	# 	optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
-			
-	scheduler = lr_scheduler.ReduceLROnPlateau(optimizer, 'min', patience=10)
-	# scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=[5, 10], gamma=0.1)
+	# from timm.optim import RAdam
+	# optimizer = RAdam(model.parameters())
+	# from timm.optim import AdamW
+	optimizer = torch.optim.AdamW(model.parameters())
+	
+	# from timm.scheduler import CosineLRScheduler
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=200)
 
 	th = -1
 	# start training
-	for epoch in range(start_epoch, 1000):
+	for epoch in range(start_epoch, 100):
 		# train, test model
 		train_loss, train_acc = train_epoch(
-			model, train_loader, criterion, optimizer, epoch, device)
+			model, train_loader, criterion, optimizer, epoch, device, scheduler)
 
 		# validate
 		if (epoch) % 1 == 0:
 			val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+			
 			lr = optimizer.param_groups[0]['lr']
-			# write summary
-			# summary_writer.add_scalar(
-			# 	'losses/train_loss', train_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'acc/train_roc', train_acc, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'lr_rate', lr, global_step=epoch)
-
-			# summary_writer.add_scalar(
-			# 	'losses/val_loss', val_loss, global_step=epoch)
-			# summary_writer.add_scalar(
-			# 	'losses/val_roc', val_acc, global_step=epoch)
-
+			
 			wandb.log({
 				"Epoch": epoch,
 				"Train Loss": train_loss,
@@ -903,16 +899,14 @@ def main():
 				"Valid Acc": val_acc,
 				"lr":lr})
 
-
-			#scheduler.step(val_loss)
-
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
-				
-				torch.save(state, 'new_data_model_from_pt_no_rotate.pth')
+				torch.save(state, 'new_data_model_from_pt_cycle.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
+
+		# scheduler.step(epoch)
 				
 if __name__=='__main__':
 	main()
