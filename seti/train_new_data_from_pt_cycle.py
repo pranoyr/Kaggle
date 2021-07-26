@@ -825,11 +825,11 @@ def main():
 											num_workers=0)
 
 	print(f'Number of training examples: {len(train_loader.dataset)}')
-	print(f'Number of training examples: {len(val_loader.dataset)}')
+	print(f'Number of validation examples: {len(val_loader.dataset)}')
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"One Cycle","batch_size":32,
-	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW", "epochs":100}
+	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW", "epochs":50}
 	wandb.init(name='train_new_data_from_pt_cycle', 
            project='Seti',
 		   config=default_config,
@@ -876,7 +876,7 @@ def main():
 	optimizer = torch.optim.AdamW(model.parameters())
 	
 	# from timm.scheduler import CosineLRScheduler
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=50)
 
 	th = -1
 	# start training
