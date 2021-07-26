@@ -880,7 +880,7 @@ def main():
 
 	th = -1
 	# start training
-	for epoch in range(start_epoch, 100):
+	for epoch in range(start_epoch, 50):
 		# train, test model
 		train_loss, train_acc = train_epoch(
 			model, train_loader, criterion, optimizer, epoch, device, scheduler)
