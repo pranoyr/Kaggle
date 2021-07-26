@@ -829,7 +829,7 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"One Cycle","batch_size":32,
-	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"RAdam", "epochs":100}
+	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW", "epochs":100}
 	wandb.init(name='train_new_data_from_pt_cycle', 
            project='Seti',
 		   config=default_config,
