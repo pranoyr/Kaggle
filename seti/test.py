@@ -71,18 +71,18 @@ model = torch.nn.Linear(30,20)
 
 # criterion = nn.BCEWithLogitsLoss()
 from timm.optim import RAdam
-optimizer = RAdam(model.parameters(),lr=0.01)
+optimizer = RAdam(model.parameters(),lr=0.001)
 
 from timm.scheduler import CosineLRScheduler
 # scheduler = CosineLRScheduler(optimizer, 10)
 # scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,10)
 # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=50,eta_min=1e-7)
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01)
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.1, epochs=100, steps_per_epoch=20)
 
 th = -1
 l = []
 # start training
-for epoch in range(1,2):
+for epoch in range(100):
 	for i in range(20):
 		# train, test model
 		# train_loss, train_acc = train_epoch(
@@ -94,10 +94,10 @@ for epoch in range(1,2):
 
 		lr = optimizer.param_groups[0]['lr']
 		l.append(lr)
-		print(lr,epoch)
+		# print(lr,epoch)
 		scheduler.step()
-		print("********")
-
+		# print("********")
+		
 		# scheduler.step(epoch + i/epoch)
 	# scheduler.step()
 	# lr = optimizer.param_groups[0]['lr']
@@ -106,6 +106,9 @@ for epoch in range(1,2):
 	# scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, 10)
 	# scheduler = CosineLRScheduler(optimizer, 10)
 	# print("******")
+	print(lr,epoch)
+	# scheduler.step()
+	print("********")
 plt.plot(l)
 plt.show()
 	

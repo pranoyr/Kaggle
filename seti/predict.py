@@ -43,7 +43,7 @@ file = 'submission.csv'
 model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./new_data_model_from_pt_cosine.pth')
+checkpoint = torch.load('./new_data_model_from_pt.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
@@ -85,7 +85,7 @@ transform = A.Compose([
 l = []
 
 
-for filename in tqdm(os.listdir('/home/neuroplex/Kaggle/seti/test/test')):
+for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
 		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
 		x = torch.from_numpy(x).view(3,-1,256)
