@@ -86,7 +86,7 @@ l = []
 
 
 for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
-		file_path = '/home/neuroplex/Kaggle/seti/test/test/' + filename
+		file_path = '/home/cyberdome/Kaggle/seti/test/test/' + filename
 		x = np.load(file_path)
 		x = torch.from_numpy(x).view(3,-1,256)
 		x = x.permute(1,2,0).numpy().astype('float32')
