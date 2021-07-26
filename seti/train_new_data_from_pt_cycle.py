@@ -876,7 +876,7 @@ def main():
 	optimizer = torch.optim.AdamW(model.parameters())
 	
 	# from timm.scheduler import CosineLRScheduler
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=200)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
