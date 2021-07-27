@@ -871,7 +871,6 @@ def main():
 		# start_epoch = epoch + 1
 	model.to(device)
 
-
 	criterion = nn.BCEWithLogitsLoss()
 	from timm.optim import AdamW
 	optimizer = AdamW(model.parameters())
@@ -908,6 +907,6 @@ def main():
 				th = val_acc
 
 		scheduler.step(epoch)
-				
+			
 if __name__=='__main__':
 	main()
