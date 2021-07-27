@@ -748,7 +748,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 # In[ ]:
 
 def main():
-	resume_path = './leaky_model.pth'
+	resume_path = './efficientnet_b0_ra-3dd342df.pth'
 	start_epoch = 1
 	wt_decay = 0.00001
 	batch_size = 32
@@ -829,7 +829,7 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"One Cycle","batch_size":32,
-	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW", "epochs":50}
+	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100}
 	wandb.init(name='train_new_data_from_pt_cycle', 
            project='Seti',
 		   config=default_config,
@@ -853,18 +853,18 @@ def main():
 	# emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+	model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1, weights_path="efficientnet_b0_ra-3dd342df.pth")
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
 	# dim = 0 [30, xxx] -> [10, ...], [10, ...], [10, ...] on 3 GPUs
 	# model = nn.DataParallel(model)
 
-	if resume_path:
-		checkpoint = torch.load(resume_path)
-		model.load_state_dict(checkpoint['model_state_dict'])
-		epoch = checkpoint['epoch']
-		print("Model Restored from Epoch {}".format(epoch))
+	# if resume_path:
+	# 	checkpoint = torch.load(resume_path)
+	# 	model.load_state_dict(checkpoint['model_state_dict'])
+	# 	epoch = checkpoint['epoch']
+	# 	print("Model Restored from Epoch {}".format(epoch))
 		# start_epoch = epoch + 1
 	model.to(device)
 
@@ -878,11 +878,11 @@ def main():
 	optimizer = torch.optim.AdamW(model.parameters())
 	
 	# from timm.scheduler import CosineLRScheduler
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=50)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
-	for epoch in range(start_epoch, 50):
+	for epoch in range(start_epoch, 100):
 		# train, test model
 		train_loss, train_acc = train_epoch(
 			model, train_loader, criterion, optimizer, epoch, device, scheduler)
@@ -904,7 +904,7 @@ def main():
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
-				torch.save(state, 'new_data_model_from_pt_cycle.pth')
+				torch.save(state, 'seti_model.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 
