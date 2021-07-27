@@ -873,6 +873,8 @@ def main():
 	# from timm.optim import RAdam
 	# optimizer = RAdam(model.parameters())
 	# from timm.optim import AdamW
+	# optimizer = torch.optim.AdamW(model.parameters())
+	# from timm.optim import AdamW
 	optimizer = torch.optim.AdamW(model.parameters())
 	
 	# from timm.scheduler import CosineLRScheduler
