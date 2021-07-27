@@ -747,7 +747,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 # In[ ]:
 
 def main():
-	resume_path = './pretrained_leakydata.pth'
+	resume_path = './leaky_model.pth'
 	start_epoch = 1
 	wt_decay = 0.00001
 	batch_size = 16
