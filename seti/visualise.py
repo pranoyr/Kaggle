@@ -50,10 +50,14 @@ transform = A.Compose([
 	A.VerticalFlip(p=0.5),
 	A.Transpose(),
 	A.ShiftScaleRotate(),	
+	A.Cutout(
+                num_holes=10, max_h_size=12, max_w_size=12,
+                fill_value=0, always_apply=False, p=0.5
+            ),
 	# 
 	A.RandomRotate90(),
-	# A.GridDropout( holes_number_x=10, holes_number_y=10)
-	# A.GridDropout()
+	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.3)
+	# A.GridDropout(num_grid=3, mode=0, rotate=15)
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 #	ToTensorV2(p=1.0)
 
