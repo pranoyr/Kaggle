@@ -74,35 +74,35 @@ from timm.optim import RAdam
 optimizer = RAdam(model.parameters(),lr=0.001)
 
 from timm.scheduler import CosineLRScheduler
-# scheduler = CosineLRScheduler(optimizer, 10)
+scheduler = CosineLRScheduler(optimizer, 50)
 # scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,10)
 # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=50,eta_min=1e-7)
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, epochs=50, steps_per_epoch=20)
+#scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, epochs=50, steps_per_epoch=20)
 
 th = -1
 l = []
 # start training
 for epoch in range(50):
-	for i in range(20):
-		# train, test model
-		# train_loss, train_acc = train_epoch(
-		# model, train_loader, criterion, optimizer, epoch, device, scheduler)
+	# for i in range(20):
+	# 	# train, test model
+	# 	# train_loss, train_acc = train_epoch(
+	# 	# model, train_loader, criterion, optimizer, epoch, device, scheduler)
 
-		# # validate
-		# if (epoch) % 1 == 0:
-		# val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
+	# 	# # validate
+	# 	# if (epoch) % 1 == 0:
+	# 	# val_loss, val_acc = val_epoch(model, val_loader, criterion, epoch, device)
 
-		lr = optimizer.param_groups[0]['lr']
-		l.append(lr)
-		# print(lr,epoch)
-		scheduler.step()
-		# print("********")
+	# 	lr = optimizer.param_groups[0]['lr']
+	# 	l.append(lr)
+	# 	# print(lr,epoch)
+	# 	scheduler.step()
+	# 	# print("********")
 		
 		# scheduler.step(epoch + i/epoch)
-	# scheduler.step()
-	# lr = optimizer.param_groups[0]['lr']
-	# l.append(lr)
-	# print(lr,epoch)
+	scheduler.step(epoch)
+	lr = optimizer.param_groups[0]['lr']
+	l.append(lr)
+	print(lr,epoch)
 	# scheduler = optim.lr_scheduler.CosineAnnealingLR(optimizer, 10)
 	# scheduler = CosineLRScheduler(optimizer, 10)
 	# print("******")

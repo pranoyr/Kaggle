@@ -828,7 +828,7 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"cosine","batch_size":32,
-	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"RAdam"}
+	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW"}
 	wandb.init(name='train_new_data_from_pt_cosine', 
            project='Seti',
 		   config=default_config,
@@ -869,11 +869,11 @@ def main():
 
 
 	criterion = nn.BCEWithLogitsLoss()
-	from timm.optim import RAdam
-	optimizer = RAdam(model.parameters())
+	from timm.optim import AdamW
+	optimizer = AdamW(model.parameters())
 	
 	from timm.scheduler import CosineLRScheduler
-	scheduler = CosineLRScheduler(optimizer, 10)
+	scheduler = CosineLRScheduler(optimizer, 100)
 
 	th = -1
 	# start training
