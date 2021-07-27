@@ -832,7 +832,7 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"cosine","batch_size":32,
-	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW","Agumentations":"CutOut"}
+	"dataset":"new_data","model":"eff07_pretrained_on_leaky","optimizer":"AdamW","Agumentations":"CutOut", "epoch":100}
 	wandb.init(name='train_new_data_from_pt_cosine_cut_out', 
            project='Seti',
 		   config=default_config,
