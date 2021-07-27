@@ -755,8 +755,8 @@ def main():
 
 	# root_dir = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
 	# train_csv = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
-	root_dir = '/home/cyberdome/Kaggle/seti/train'
-	train_csv = '/home/cyberdome/Kaggle/seti/train_labels.csv'
+	root_dir = '/home/neuroplex/Kaggle/seti/train'
+	train_csv = '/home/neuroplex/Kaggle/seti/train_labels.csv'
 
 	# root_dir_old = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_old'
 	# train_csv_old = '/home/neuroplex/Kaggle/seti/old_leaky_data/train_labels_old.csv'
