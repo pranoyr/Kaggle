@@ -829,7 +829,8 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"onecycle","batch_size":32,
-	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, "save_model_name":"seti_model_cycle_0.0007.pth"}
+	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, 
+	"save_model_name":"seti_model_cycle_0.0007.pth", "weight_decay":1e-4}
 	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007', 
            project='Seti',
 		   config=default_config,
