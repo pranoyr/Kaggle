@@ -734,7 +734,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 		optimizer.zero_grad()
 		loss.backward()
 		optimizer.step()
-		scheduler.step()
+		# scheduler.step()
 		# scheduler.step(epoch + batch_idx / iters)
 
 		# show information
@@ -829,8 +829,8 @@ def main():
 	import wandb
 	wandb.login()
 	default_config = {"scheduler":"One Cycle","batch_size":32,
-	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, "save_model_name":"seti_model.pth"}
-	wandb.init(name='train_new_data_from_pt_cycle', 
+	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, "save_model_name":"seti_model_cosine.pth"}
+	wandb.init(name='train_new_data_from_pt_cosine', 
            project='Seti',
 		   config=default_config,
            entity='Pranoy')
@@ -878,7 +878,9 @@ def main():
 	optimizer = torch.optim.AdamW(model.parameters())
 	
 	# from timm.scheduler import CosineLRScheduler
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
+	from timm.scheduler import CosineLRScheduler
+	scheduler = CosineLRScheduler(optimizer, 100)
+	# scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
@@ -904,11 +906,11 @@ def main():
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
-				torch.save(state, 'seti_model.pth')
+				torch.save(state, 'seti_model_cosine.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 
-		# scheduler.step(epoch)
+		scheduler.step(epoch)
 				
 if __name__=='__main__':
 	main()
