@@ -837,7 +837,7 @@ def main():
 	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, 
 	"save_model_name":"seti_model_cycle_0.0007.pth"
 	}
-	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007', 
+	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_augmentation', 
            project='Seti',
 		   config=default_config,
            entity='Pranoy')
