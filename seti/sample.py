@@ -17,5 +17,8 @@ model = nn.DataParallel(model)
 #     print("Model Restored")
     # start_epoch = epoch + 1
 
-model.fc2 = nn.Linear(2048, 1)
-model.to('device')
+# model.fc2 = nn.Linear(2048, 1)
+# model.to('device')
+
+
+print(1.0e-3)

@@ -48,8 +48,9 @@ transform = A.Compose([
 	A.Resize(256,256),
 	A.HorizontalFlip(p=0.5),
 	A.VerticalFlip(p=0.5),
-	A.Transpose(),
-	A.ShiftScaleRotate(),	
+	# A.Transpose(),
+	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
+                rotate_limit= 20, border_mode= 0, value= 0, mask_value= 0),
 	A.Cutout(
                 num_holes=10, max_h_size=12, max_w_size=12,
                 fill_value=0, always_apply=False, p=0.5
@@ -71,23 +72,22 @@ fig, ax = plt.subplots(figsize=(20,20))
 
 for i in range(50):
 
-	x = cv2.imread("/Users/pranoyr/Desktop/pr.jpeg")
-	x = transform(image=x)['image']
-	cv2.imshow('window', x)
-	cv2.waitKey(0)
+	# x = cv2.imread("/Users/pranoyr/Desktop/pr.jpeg")
+	# x = transform(image=x)['image']
+	# cv2.imshow('window', x)
+	# cv2.waitKey(0)
 
 
     	
-
-	# x = np.load("/Users/pranoyr/Desktop/0_3.npy").astype(float)
-	# # x = torch.from_numpy(x).view(3,-1,256)
+	x = np.load("/Users/pranoyr/Desktop/0_3.npy").astype(float)
 	# x = torch.from_numpy(x).view(3,-1,256)
-	# x = x.permute(1,2,0).numpy().astype('float32')
-	# x = transform(image=x)['image']
-	# # x = x.type(torch.FloatTensor)
-	# print(x.shape)
-	# cv2.imshow('window', x)
-	# cv2.waitKey(0)
+	x = torch.from_numpy(x).view(3,-1,256)
+	x = x.permute(1,2,0).numpy().astype('float32')
+	x = transform(image=x)['image']
+	# x = x.type(torch.FloatTensor)
+	print(x.shape)
+	cv2.imshow('window', x)
+	cv2.waitKey(0)
 
 
 # ax.imshow(rearrange(x, 't0 t f -> f (t0 t)'))

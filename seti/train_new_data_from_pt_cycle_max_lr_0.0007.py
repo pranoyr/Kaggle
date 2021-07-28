@@ -783,14 +783,19 @@ def main():
 	device = torch.device("cuda:1" if use_cuda else "cpu")
 
 
-
-	
 	train_transform = A.Compose([
 	A.Resize(256,256),
 	A.HorizontalFlip(p=0.5),
 	A.VerticalFlip(p=0.5),
-	A.Transpose(),
-	A.ShiftScaleRotate(),	
+	# A.Transpose(),
+	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
+                rotate_limit= 20, border_mode= 0, value= 0, mask_value= 0),
+
+	# A.RandomResizedCrop(p= 1.0,  scale= [0.9, 1.0]),
+	A.Cutout(
+                num_holes=10, max_h_size=12, max_w_size=12,
+                fill_value=0, always_apply=False, p=0.5
+            ),
 	
 	A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=5, holes_number_y=5)
