@@ -828,7 +828,7 @@ def main():
 	print(f'Number of validation examples: {len(val_loader.dataset)}')
 	import wandb
 	wandb.login()
-	default_config = {"scheduler":"One Cycle","batch_size":32,
+	default_config = {"scheduler":"cosine","batch_size":32,
 	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, "save_model_name":"seti_model_cosine.pth"}
 	wandb.init(name='train_new_data_from_pt_cosine', 
            project='Seti',
