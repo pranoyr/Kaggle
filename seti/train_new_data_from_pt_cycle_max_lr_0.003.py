@@ -880,7 +880,7 @@ def main():
 	# from timm.scheduler import CosineLRScheduler
 	from timm.scheduler import CosineLRScheduler
 	# scheduler = CosineLRScheduler(optimizer, 100)
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.003, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
