@@ -830,7 +830,7 @@ def main():
 	wandb.login()
 	default_config = {"scheduler":"onecycle","batch_size":32,
 	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, "save_model_name":"seti_model_cycle.pth"}
-	wandb.init(name='train_new_data_from_pt_cycle_0.08', 
+	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.003', 
            project='Seti',
 		   config=default_config,
            entity='Pranoy')
@@ -880,7 +880,7 @@ def main():
 	# from timm.scheduler import CosineLRScheduler
 	from timm.scheduler import CosineLRScheduler
 	# scheduler = CosineLRScheduler(optimizer, 100)
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100, pct_start=0.08)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
