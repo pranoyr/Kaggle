@@ -875,7 +875,7 @@ def main():
 	# from timm.optim import AdamW
 	# optimizer = torch.optim.AdamW(model.parameters())
 	# from timm.optim import AdamW
-	optimizer = torch.optim.AdamW(model.parameters())
+	optimizer = torch.optim.AdamW(model.parameters(weight_decay=1e-4))
 	
 	# from timm.scheduler import CosineLRScheduler
 	from timm.scheduler import CosineLRScheduler
