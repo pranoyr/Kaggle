@@ -46,15 +46,19 @@ import torch
 
 transform = A.Compose([
 	A.Resize(256,256),
+	A.OneOf([
 	# A.HorizontalFlip(p=0.5),
 	# A.VerticalFlip(p=0.5),
 	# A.Transpose(),
-	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
-                rotate_limit= (-10,-30)),
+	# A.ShiftScaleRotate(shift_limit= 0, scale_limit= 0, border_mode=0,
+    #             rotate_limit= (-10,-30)),
 	A.Cutout(
                 num_holes=10, max_h_size=12, max_w_size=12,
                 fill_value=0, always_apply=False, p=0.5
             ),
+
+	# A.RandomResizedCrop(200, 200, p=0.5),
+	
 	# 
 	# A.RandomRotate90(),
 	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.3)
@@ -62,9 +66,7 @@ transform = A.Compose([
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 #	ToTensorV2(p=1.0)
 
-
-	])
-
+	])])
 
 fig, ax = plt.subplots(figsize=(20,20))
 
@@ -79,7 +81,7 @@ for i in range(50):
 
 
     	
-	x = np.load("/Users/pranoyr/Desktop/015402214fff019.npy").astype(float)
+	x = np.load("/Users/pranoyr/Desktop/1/06fd6d6ff6d082a.npy").astype(float)
 	x = torch.from_numpy(x).view(3,-1,256)
 	# x = torch.from_numpy(x).view(3,-1,256)
 
