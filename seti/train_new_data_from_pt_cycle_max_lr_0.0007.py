@@ -785,8 +785,8 @@ def main():
 
 	train_transform = A.Compose([
 	A.Resize(512,512),
-	A.HorizontalFlip(p=0.5),
-	A.VerticalFlip(p=0.5),
+	# A.HorizontalFlip(p=0.5),
+	# A.VerticalFlip(p=0.5),
 	# A.Transpose(),
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
                 rotate_limit= 20, border_mode= 0, value= 0, mask_value= 0),
@@ -797,7 +797,7 @@ def main():
                 fill_value=0, always_apply=False, p=0.5
             ),
 	
-	A.RandomRotate90(),
+	# A.RandomRotate90(),
 	# A.GridDropout( holes_number_x=5, holes_number_y=5)
 	A.GridDropout(),
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
