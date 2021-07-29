@@ -792,7 +792,9 @@ def main():
 	
 	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
 	
-	])])
+	]),
+	ToTensorV2(p=1.0)
+	])
 
 
 
