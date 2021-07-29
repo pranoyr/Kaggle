@@ -88,7 +88,7 @@ for i in range(50):
 	# x = torch.from_numpy(x).view(3,-1,256)
 
 	x = x.permute(1,2,0).numpy().astype('float32')
-	# x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
+	x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
 	x = transform(image=x)['image']
 	# x = x.type(torch.FloatTensor)
 	print(x.shape)
