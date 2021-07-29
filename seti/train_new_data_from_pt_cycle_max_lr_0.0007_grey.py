@@ -855,7 +855,7 @@ def main():
 	# emb_dropout = 0.1
 	#)
 	# model = vgg16(pretrained=False ,num_classes=1)
-	model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1)
+	model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1, in_channels=1)
 
 	# if torch.cuda.device_count() > 1:
 	# 	print("Let's use", torch.cuda.device_count(), "GPUs!")
