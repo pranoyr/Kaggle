@@ -9,6 +9,7 @@
 # For example, here's several helpful packages to load
 
 from eff import EfficientNet
+import cv2
 from vit_pytorch.vit import ViT
 from torch.optim import lr_scheduler
 from albumentations.augmentations import functional as AF
