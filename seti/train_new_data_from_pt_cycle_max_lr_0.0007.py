@@ -784,7 +784,7 @@ def main():
 
 
 	train_transform = A.Compose([
-	A.Resize(512,512),
+	A.Resize(256,256),
 	# A.HorizontalFlip(p=0.5),
 	# A.VerticalFlip(p=0.5),
 	# A.Transpose(),
