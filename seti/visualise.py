@@ -50,7 +50,7 @@ transform = A.Compose([
 	# A.VerticalFlip(p=0.5),
 	# A.Transpose(),
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
-                rotate_limit= 20, border_mode= 0, value= 0, mask_value= 0),
+                rotate_limit= (-10,-30)),
 	A.Cutout(
                 num_holes=10, max_h_size=12, max_w_size=12,
                 fill_value=0, always_apply=False, p=0.5
@@ -79,7 +79,7 @@ for i in range(50):
 
 
     	
-	x = np.load("/Users/pranoyr/Desktop/1/009720abc6c9db7.npy").astype(float)
+	x = np.load("/Users/pranoyr/Desktop/015402214fff019.npy").astype(float)
 	x = torch.from_numpy(x).view(3,-1,256)
 	# x = torch.from_numpy(x).view(3,-1,256)
 

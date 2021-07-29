@@ -789,19 +789,17 @@ def main():
 	# A.VerticalFlip(p=0.5),
 	# A.Transpose(),
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
-                rotate_limit= 20, border_mode= 0, value= 0, mask_value= 0),
-
-	# A.RandomResizedCrop(p= 1.0,  scale= [0.9, 1.0]),
+                rotate_limit= (-10,-30)),
 	A.Cutout(
                 num_holes=10, max_h_size=12, max_w_size=12,
                 fill_value=0, always_apply=False, p=0.5
             ),
-	
+	# 
 	# A.RandomRotate90(),
-	# A.GridDropout( holes_number_x=5, holes_number_y=5)
-	A.GridDropout(),
+	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.3)])
+	# A.GridDropout(num_grid=3, mode=0, rotate=15)
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
-	ToTensorV2(p=1.0)])
+#	ToTensorV2(p=1.0)
 
 
 	test_transform = A.Compose([
@@ -835,9 +833,9 @@ def main():
 	wandb.login()
 	default_config = {"scheduler":"onecycle","batch_size":32,
 	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, 
-	"save_model_name":"seti_model_cycle_0.0007.pth"
+	"save_model_name":"seti_model_cycle_0.01.pth"
 	}
-	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_augmentation', 
+	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.01_augmentation', 
            project='Seti',
 		   config=default_config,
            entity='Pranoy')
@@ -887,7 +885,7 @@ def main():
 	# from timm.scheduler import CosineLRScheduler
 	from timm.scheduler import CosineLRScheduler
 	# scheduler = CosineLRScheduler(optimizer, 100)
-	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.0007, steps_per_epoch=len(train_loader), epochs=100)
+	scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, steps_per_epoch=len(train_loader), epochs=100)
 
 	th = -1
 	# start training
@@ -913,7 +911,7 @@ def main():
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
-				torch.save(state, 'seti_model_cycle_0.0007.pth')
+				torch.save(state, 'seti_model_cycle_0.01.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 
