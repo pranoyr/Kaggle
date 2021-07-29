@@ -40,10 +40,10 @@ device = torch.device("cuda" if use_cuda else "cpu")
 file = 'submission.csv'
 
 # model = ResidualNet("ImageNet", 101, 1, "CBAM")
-model = EfficientNet.from_pretrained('efficientnet-b7', num_classes=1)
+model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./new_data_model_from_pt.pth')
+checkpoint = torch.load('./seti_model_cycle_0.0007.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
@@ -75,7 +75,7 @@ torch.manual_seed(seed)
 
 
 transform = A.Compose([
-	A.Resize(256,256),
+	A.Resize(512,512),
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)
 	
