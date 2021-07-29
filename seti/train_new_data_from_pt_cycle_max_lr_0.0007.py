@@ -783,50 +783,21 @@ def main():
 	device = torch.device("cuda:1" if use_cuda else "cpu")
 
 	train_transform = A.Compose([
-	A.Resize(256,256),
+	A.Resize(512,512),
 	A.OneOf([
-	# A.HorizontalFlip(p=0.5),
-	# A.VerticalFlip(p=0.5),
-	# A.Transpose(),
-	# A.ShiftScaleRotate(shift_limit= 0, scale_limit= 0, border_mode=0,
-    #             rotate_limit= (-10,-30)),
-	A.Cutout(
-                num_holes=10, max_h_size=12, max_w_size=12,
-                fill_value=0, always_apply=False, p=0.5
-            ),
-
-	# A.RandomResizedCrop(200, 200, p=0.5),
+	A.HorizontalFlip(p=0.5),
+	A.VerticalFlip(p=0.5),
+	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2, border_mode=0,
+                rotate_limit= 20, value=0, mask_value=0),
 	
-	# 
-	# A.RandomRotate90(),
-	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.3)
-	# A.GridDropout(num_grid=3, mode=0, rotate=15)
-	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
-#	ToTensorV2(p=1.0)
+	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
+	
+	])])
 
-	]),
-
-	# train_transform = A.Compose([
-	# A.Resize(256,256),
-	# # A.HorizontalFlip(p=0.5),
-	# # A.VerticalFlip(p=0.5),
-	# # A.Transpose(),
-	# A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2,
-    #             rotate_limit= (-10,-30)),
-	# A.Cutout(
-    #             num_holes=10, max_h_size=12, max_w_size=12,
-    #             fill_value=0, always_apply=False, p=0.5
-    #         ),
-	# # 
-	# # A.RandomRotate90(),
-	# A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.3),
-	# # A.GridDropout(num_grid=3, mode=0, rotate=15)
-	# # A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
-	ToTensorV2(p=1.0)])
 
 
 	test_transform = A.Compose([
-	A.Resize(256,256),
+	A.Resize(512,512),
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 	ToTensorV2(p=1.0)
 	
@@ -931,12 +902,12 @@ def main():
 				"Valid Acc": val_acc,
 				"lr":lr})
 
-			if (val_acc > th):
-				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-						'optimizer_state_dict': optimizer.state_dict()}
-				torch.save(state, 'seti_model_cycle_0.0007.pth')
-				print("Epoch {} model saved!\n".format(epoch))
-				th = val_acc
+			# if (val_acc > th):
+			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+					'optimizer_state_dict': optimizer.state_dict()}
+			torch.save(state, 'seti_model_cycle_0.0007.pth')
+			print("Epoch {} model saved!\n".format(epoch))
+				# th = val_acc
 
 		# scheduler.step(epoch)
 				
