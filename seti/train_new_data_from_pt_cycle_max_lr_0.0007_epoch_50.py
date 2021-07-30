@@ -392,8 +392,6 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 		inputs, targets_a, targets_b = map(Variable, (inputs,
 													  targets_a, targets_b))
 		
-
-
 	
 		outputs = model(data)
 		# loss = criterion(outputs, targets.unsqueeze(1))

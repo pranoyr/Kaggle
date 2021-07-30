@@ -11,6 +11,7 @@
 from eff import EfficientNet
 import cv2
 from vit_pytorch.vit import ViT
+from torch.autograd import Variable
 from torch.optim import lr_scheduler
 from albumentations.augmentations import functional as AF
 from albumentations.core.transforms_interface import DualTransform
@@ -711,6 +712,29 @@ def val_epoch(model, data_loader, criterion, epoch, device):
 		return losses.avg, metrics.avg
 
 
+def mixup_data(x, y, alpha=1.0, device="cuda"):
+	'''Returns mixed inputs, pairs of targets, and lambda'''
+	if alpha > 0:
+		lam = np.random.beta(alpha, alpha)
+	else:
+		lam = 1
+
+	batch_size = x.size()[0]
+	# if use_cuda:
+	index = torch.randperm(batch_size).to(device)
+	# else:
+	# 	index = torch.randperm(batch_size)
+
+	mixed_x = lam * x + (1 - lam) * x[index, :]
+	y_a, y_b = y, y[index]
+	return mixed_x, y_a, y_b, lam
+
+
+
+def mixup_criterion(criterion, pred, y_a, y_b, lam):
+	return lam * criterion(pred, y_a.unsqueeze(1)) + (1 - lam) * criterion(pred, y_b.unsqueeze(1))
+
+
 def train_epoch(model, data_loader, criterion, optimizer, epoch, device, scheduler):
 
 	model.train()
@@ -726,9 +750,15 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
 		data, targets = data.to(device), targets.to(device)
-	
+
+		inputs, targets_a, targets_b, lam = mixup_data(data, targets,
+													   0.2,  device)
+		inputs, targets_a, targets_b = map(Variable, (inputs,
+													  targets_a, targets_b))
+		
 		outputs = model(data)
-		loss = criterion(outputs, targets.unsqueeze(1))
+		# loss = criterion(outputs, targets.unsqueeze(1))
+		loss = mixup_criterion(criterion, outputs, targets_a, targets_b, lam)
 
 		losses.update(loss.item(), data.size(0))
 		metrics.update(outputs, targets)
