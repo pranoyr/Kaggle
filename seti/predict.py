@@ -33,17 +33,17 @@ from sklearn.metrics import average_precision_score
 
 
 
-use_cuda = False
+use_cuda = torch.cuda.is_available()
 device = torch.device("cuda:1" if use_cuda else "cpu")
 
 
 file = 'submission.csv'
 
 # model = ResidualNet("ImageNet", 101, 1, "CBAM")
-model = EfficientNet.from_name('efficientnet-b0', num_classes=1, in_channels=1)
+model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1, in_channels=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./model.pth')
+checkpoint = torch.load('./model_50.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
