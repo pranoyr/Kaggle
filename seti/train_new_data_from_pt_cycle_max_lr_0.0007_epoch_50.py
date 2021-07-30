@@ -133,7 +133,7 @@ def mixup_data(x, y, alpha=1.0, device="cuda"):
 
 
 def mixup_criterion(criterion, pred, y_a, y_b, lam):
-	return lam * criterion(pred, y_a) + (1 - lam) * criterion(pred, y_b)
+	return lam * criterion(pred, y_a.unsqueeze(1)) + (1 - lam) * criterion(pred, y_b.unsqueeze(1))
 
 class ProgressMeter(object):
 	def __init__(self, num_batches, meters, prefix=""):
