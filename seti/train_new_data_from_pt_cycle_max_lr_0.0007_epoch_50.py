@@ -10,6 +10,7 @@
 
 from eff import EfficientNet
 from vit_pytorch.vit import ViT
+from torch.autograd import Variable
 from torch.optim import lr_scheduler
 from albumentations.augmentations import functional as AF
 from albumentations.core.transforms_interface import DualTransform
@@ -111,34 +112,28 @@ class SETIDataset(data.Dataset):
 		return x, target.type(torch.FloatTensor)
 
 
-# root_dir = '/kaggle/input/seti-breakthrough-listen/train'
-# train_csv = '/kaggle/input/seti-breakthrough-listen/train_labels.csv'
-# a = SETIDataset(root_dir, train_csv)
-# print(a.__getitem__(0)[0].shape)
+
+def mixup_data(x, y, alpha=1.0, use_cuda=True):
+	'''Returns mixed inputs, pairs of targets, and lambda'''
+	if alpha > 0:
+		lam = np.random.beta(alpha, alpha)
+	else:
+		lam = 1
+
+	batch_size = x.size()[0]
+	if use_cuda:
+		index = torch.randperm(batch_size).cuda()
+	else:
+		index = torch.randperm(batch_size)
+
+	mixed_x = lam * x + (1 - lam) * x[index, :]
+	y_a, y_b = y, y[index]
+	return mixed_x, y_a, y_b, lam
 
 
-# You can write up to 20GB to the current directory (/kaggle/working/) that gets preserved as output when you create a version using "Save & Run All"
-# You can also write temporary files to /kaggle/temp/, but they won't be saved outside of the current session
 
-
-# In[ ]:
-
-
-# tensor([ 1.1921e-06,  2.3842e-07,  1.2517e-06,  1.7881e-07,  1.4305e-06,
-#         -1.1921e-07], device='cuda:0', dtype=torch.float16)
-# tensor([0.0408, 0.0408, 0.0408, 0.0408, 0.0408, 0.0408], device='cuda:0',
-#        dtype=torch.float16)
-
-
-# if (__name__=='__main__'):
-#     net = ResidualNet("ImageNet", 18, 2, att_type='CBAM')
-#     x  = torch.randn(32, 6, 224,224)
-#     output = net(x)
-#     print(output.size())
-
-
-# In[ ]:
-
+def mixup_criterion(criterion, pred, y_a, y_b, lam):
+	return lam * criterion(pred, y_a) + (1 - lam) * criterion(pred, y_b)
 
 class ProgressMeter(object):
 	def __init__(self, num_batches, meters, prefix=""):
@@ -176,74 +171,74 @@ def accuracy(output, target, topk=(1,)):
 
 
 class GridMask(DualTransform):
-    
-    def __init__(self, num_grid=3, fill_value=0, rotate=0, mode=0, always_apply=False, p=0.5):
-        super(GridMask, self).__init__(always_apply, p)
-        if isinstance(num_grid, int):
-            num_grid = (num_grid, num_grid)
-        if isinstance(rotate, int):
-            rotate = (-rotate, rotate)
-        self.num_grid = num_grid
-        self.fill_value = fill_value
-        self.rotate = rotate
-        self.mode = mode
-        self.masks = None
-        self.rand_h_max = []
-        self.rand_w_max = []
+	
+	def __init__(self, num_grid=3, fill_value=0, rotate=0, mode=0, always_apply=False, p=0.5):
+		super(GridMask, self).__init__(always_apply, p)
+		if isinstance(num_grid, int):
+			num_grid = (num_grid, num_grid)
+		if isinstance(rotate, int):
+			rotate = (-rotate, rotate)
+		self.num_grid = num_grid
+		self.fill_value = fill_value
+		self.rotate = rotate
+		self.mode = mode
+		self.masks = None
+		self.rand_h_max = []
+		self.rand_w_max = []
 
-    def init_masks(self, height, width):
-        if self.masks is None:
-            self.masks = []
-            n_masks = self.num_grid[1] - self.num_grid[0] + 1
-            for n, n_g in enumerate(range(self.num_grid[0], self.num_grid[1] + 1, 1)):
-                grid_h = height / n_g
-                grid_w = width / n_g
-                this_mask = np.ones((int((n_g + 1) * grid_h), int((n_g + 1) * grid_w))).astype(np.uint8)
-                for i in range(n_g + 1):
-                    for j in range(n_g + 1):
-                        this_mask[
-                             int(i * grid_h) : int(i * grid_h + grid_h / 2),
-                             int(j * grid_w) : int(j * grid_w + grid_w / 2)
-                        ] = self.fill_value
-                        if self.mode == 2:
-                            this_mask[
-                                 int(i * grid_h + grid_h / 2) : int(i * grid_h + grid_h),
-                                 int(j * grid_w + grid_w / 2) : int(j * grid_w + grid_w)
-                            ] = self.fill_value
-                
-                if self.mode == 1:
-                    this_mask = 1 - this_mask
+	def init_masks(self, height, width):
+		if self.masks is None:
+			self.masks = []
+			n_masks = self.num_grid[1] - self.num_grid[0] + 1
+			for n, n_g in enumerate(range(self.num_grid[0], self.num_grid[1] + 1, 1)):
+				grid_h = height / n_g
+				grid_w = width / n_g
+				this_mask = np.ones((int((n_g + 1) * grid_h), int((n_g + 1) * grid_w))).astype(np.uint8)
+				for i in range(n_g + 1):
+					for j in range(n_g + 1):
+						this_mask[
+							 int(i * grid_h) : int(i * grid_h + grid_h / 2),
+							 int(j * grid_w) : int(j * grid_w + grid_w / 2)
+						] = self.fill_value
+						if self.mode == 2:
+							this_mask[
+								 int(i * grid_h + grid_h / 2) : int(i * grid_h + grid_h),
+								 int(j * grid_w + grid_w / 2) : int(j * grid_w + grid_w)
+							] = self.fill_value
+				
+				if self.mode == 1:
+					this_mask = 1 - this_mask
 
-                self.masks.append(this_mask)
-                self.rand_h_max.append(grid_h)
-                self.rand_w_max.append(grid_w)
+				self.masks.append(this_mask)
+				self.rand_h_max.append(grid_h)
+				self.rand_w_max.append(grid_w)
 
-    def apply(self, image, mask, rand_h, rand_w, angle, **params):
-        h, w = image.shape[:2]
-        mask = AF.rotate(mask, angle) if self.rotate[1] > 0 else mask
-        mask = mask[:,:,np.newaxis] if image.ndim == 3 else mask
-        image *= mask[rand_h:rand_h+h, rand_w:rand_w+w].astype(image.dtype)
-        return image
+	def apply(self, image, mask, rand_h, rand_w, angle, **params):
+		h, w = image.shape[:2]
+		mask = AF.rotate(mask, angle) if self.rotate[1] > 0 else mask
+		mask = mask[:,:,np.newaxis] if image.ndim == 3 else mask
+		image *= mask[rand_h:rand_h+h, rand_w:rand_w+w].astype(image.dtype)
+		return image
 
-    def get_params_dependent_on_targets(self, params):
-        img = params['image']
-        height, width = img.shape[:2]
-        self.init_masks(height, width)
+	def get_params_dependent_on_targets(self, params):
+		img = params['image']
+		height, width = img.shape[:2]
+		self.init_masks(height, width)
 
-        mid = np.random.randint(len(self.masks))
-        mask = self.masks[mid]
-        rand_h = np.random.randint(self.rand_h_max[mid])
-        rand_w = np.random.randint(self.rand_w_max[mid])
-        angle = np.random.randint(self.rotate[0], self.rotate[1]) if self.rotate[1] > 0 else 0
+		mid = np.random.randint(len(self.masks))
+		mask = self.masks[mid]
+		rand_h = np.random.randint(self.rand_h_max[mid])
+		rand_w = np.random.randint(self.rand_w_max[mid])
+		angle = np.random.randint(self.rotate[0], self.rotate[1]) if self.rotate[1] > 0 else 0
 
-        return {'mask': mask, 'rand_h': rand_h, 'rand_w': rand_w, 'angle': angle}
+		return {'mask': mask, 'rand_h': rand_h, 'rand_w': rand_w, 'angle': angle}
 
-    @property
-    def targets_as_params(self):
-        return ['image']
+	@property
+	def targets_as_params(self):
+		return ['image']
 
-    def get_transform_init_args_names(self):
-        return ('num_grid', 'fill_value', 'rotate', 'mode')
+	def get_transform_init_args_names(self):
+		return ('num_grid', 'fill_value', 'rotate', 'mode')
 
 
 target_names = ['class 0', 'class 1']
@@ -375,6 +370,7 @@ def val_epoch(model, data_loader, criterion, epoch, device):
 		return losses.avg, metrics.avg
 
 
+
 def train_epoch(model, data_loader, criterion, optimizer, epoch, device, scheduler):
 
 	model.train()
@@ -390,9 +386,18 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 	for batch_idx, (data, targets) in enumerate(data_loader):
 		# compute outputs
 		data, targets = data.to(device), targets.to(device)
+
+		inputs, targets_a, targets_b, lam = mixup_data(data, targets,
+													   0.2. device)
+		inputs, targets_a, targets_b = map(Variable, (inputs,
+													  targets_a, targets_b))
+		
+
+
 	
 		outputs = model(data)
-		loss = criterion(outputs, targets.unsqueeze(1))
+		# loss = criterion(outputs, targets.unsqueeze(1))
+		loss = mixup_criterion(criterion, outputs, targets_a, targets_b, lam)
 
 		losses.update(loss.item(), data.size(0))
 		metrics.update(outputs, targets)
@@ -454,7 +459,7 @@ def main():
 	A.HorizontalFlip(p=0.5),
 	A.VerticalFlip(p=0.5),
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2, border_mode=0,
-                rotate_limit= 20, value=0, mask_value=0),
+				rotate_limit= 20, value=0, mask_value=0),
 	
 	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
 	
@@ -498,9 +503,9 @@ def main():
 	"save_model_name":"seti_model_cycle_0.0007_50.pth"
 	}
 	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_epoch_50', 
-           project='Seti',
+		   project='Seti',
 		   config=default_config,
-           entity='Pranoy')
+		   entity='Pranoy')
 
 	# tensorboard
 	# summary_writer = tensorboardX.SummaryWriter(log_dir='tf_logs1')

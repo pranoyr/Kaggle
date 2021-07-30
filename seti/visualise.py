@@ -57,6 +57,7 @@ transform = A.Compose([
     #             num_holes=10, max_h_size=12, max_w_size=12,
     #             fill_value=0, always_apply=False, p=0.5
     #         ),
+	A.Mixup(alpha=1.0),
 
 	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
 	
