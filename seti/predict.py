@@ -33,7 +33,7 @@ from sklearn.metrics import average_precision_score
 
 
 
-use_cuda = torch.cuda.is_available()
+use_cuda = False
 device = torch.device("cuda:1" if use_cuda else "cpu")
 
 
