@@ -793,6 +793,7 @@ def main():
                 rotate_limit= 20, value=0, mask_value=0),
 	
 	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
+	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.4)
 	
 	]),
 	ToTensorV2(p=1.0)
