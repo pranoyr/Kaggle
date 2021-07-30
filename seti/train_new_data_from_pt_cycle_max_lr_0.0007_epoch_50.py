@@ -575,12 +575,12 @@ def main():
 				"Valid Acc": val_acc,
 				"lr":lr})
 
-			# if (val_acc > th):
-			state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
-					'optimizer_state_dict': optimizer.state_dict()}
-			torch.save(state, 'seti_model_cycle_0.0007_50.pth')
-			print("Epoch {} model saved!\n".format(epoch))
-				# th = val_acc
+			if (val_acc > th):
+				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
+						'optimizer_state_dict': optimizer.state_dict()}
+				torch.save(state, 'seti_model_cycle_0.0007_50.pth')
+				print("Epoch {} model saved!\n".format(epoch))
+				th = val_acc
 
 		# scheduler.step(epoch)
 				
