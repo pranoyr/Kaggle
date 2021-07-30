@@ -43,7 +43,7 @@ file = 'submission.csv'
 model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1, in_channels=3)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./model_50.pth')
+checkpoint = torch.load('./seti_model_cycle_0.0007_50.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
