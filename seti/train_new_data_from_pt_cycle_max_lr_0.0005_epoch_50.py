@@ -461,7 +461,7 @@ def main():
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2, border_mode=0,
 				rotate_limit= 20, value=0, mask_value=0),
 	
-	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
+	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=256, width=256),
 	
 	]),
 	ToTensorV2(p=1.0)
