@@ -40,10 +40,10 @@ device = torch.device("cuda" if use_cuda else "cpu")
 file = 'submission.csv'
 
 # model = ResidualNet("ImageNet", 101, 1, "CBAM")
-model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1)
+model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1, in_channels=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
-checkpoint = torch.load('./seti_model_cycle_0.0007.pth')
+checkpoint = torch.load('./model.pth')
 model.load_state_dict(checkpoint['model_state_dict'])
 model.to(device)
 
@@ -90,6 +90,7 @@ for filename in tqdm(os.listdir('/home/cyberdome/Kaggle/seti/test/test')):
 		x = np.load(file_path)
 		x = torch.from_numpy(x).view(3,-1,256)
 		x = x.permute(1,2,0).numpy().astype('float32')
+		x = cv2.cvtColor(x, cv2.COLOR_BGR2GRAY)
 		x = transform(image=x)['image'].unsqueeze(0)
 		# x = transform(torch.from_numpy(x)).unsqueeze(0)
 		# x = torch.from_numpy(x).unsqueeze(0)

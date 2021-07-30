@@ -77,12 +77,12 @@ from timm.scheduler import CosineLRScheduler
 # scheduler = CosineLRScheduler(optimizer, 100)
 # scheduler = lr_scheduler.CosineAnnealingWarmRestarts(optimizer,10)
 # scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer,T_max=50,eta_min=1e-7)
-scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, epochs=500, steps_per_epoch=1670, pct_start=0.3)
+scheduler = torch.optim.lr_scheduler.OneCycleLR(optimizer, max_lr=0.01, epochs=10, steps_per_epoch=1670, pct_start=0.3)
 
 th = -1
 l = []
 # start training
-for epoch in range(500):
+for epoch in range(10):
 	for i in range(1670):
 	# 	# train, test model
 	# 	# train_loss, train_acc = train_epoch(
