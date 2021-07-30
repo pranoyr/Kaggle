@@ -40,7 +40,7 @@ device = torch.device("cuda:1" if use_cuda else "cpu")
 file = 'submission.csv'
 
 # model = ResidualNet("ImageNet", 101, 1, "CBAM")
-model = EfficientNet.from_pretrained('efficientnet-b0', num_classes=1, in_channels=1)
+model = EfficientNet.from_name('efficientnet-b0', num_classes=1, in_channels=1)
 # model = nn.DataParallel(model)
 # load pretrained weights
 checkpoint = torch.load('./model.pth')
