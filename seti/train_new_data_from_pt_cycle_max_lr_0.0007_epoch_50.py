@@ -113,7 +113,7 @@ class SETIDataset(data.Dataset):
 
 
 
-def mixup_data(x, y, alpha=1.0, device):
+def mixup_data(x, y, alpha=1.0, device="cuda"):
 	'''Returns mixed inputs, pairs of targets, and lambda'''
 	if alpha > 0:
 		lam = np.random.beta(alpha, alpha)
