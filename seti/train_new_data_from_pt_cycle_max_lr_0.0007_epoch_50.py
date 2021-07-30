@@ -388,7 +388,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 		data, targets = data.to(device), targets.to(device)
 
 		inputs, targets_a, targets_b, lam = mixup_data(data, targets,
-													   0.2. device)
+													   0.2,  device)
 		inputs, targets_a, targets_b = map(Variable, (inputs,
 													  targets_a, targets_b))
 		
@@ -502,7 +502,7 @@ def main():
 	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":50, 
 	"save_model_name":"seti_model_cycle_0.0007_50.pth"
 	}
-	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_epoch_50', 
+	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_epoch_50_mix_up', 
 		   project='Seti',
 		   config=default_config,
 		   entity='Pranoy')
