@@ -864,9 +864,9 @@ def main():
 	wandb.login()
 	default_config = {"scheduler":"onecycle","batch_size":32,
 	"dataset":"new_data","model":"pretrained_imagenet","optimizer":"AdamW", "epochs":100, 
-	"save_model_name":"seti_model_cycle_0.0007_grey.pth"
+	"save_model_name":"seti_model_cycle_0.0007_grey_pct_0.1.pth"
 	}
-	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_grey', 
+	wandb.init(name='train_new_data_from_pt_cycle_max_lr_0.0007_grey_pct_0.1', 
            project='Seti',
 		   config=default_config,
            entity='Pranoy')
@@ -942,7 +942,7 @@ def main():
 			if (val_acc > th):
 				state = {'epoch': epoch, 'model_state_dict': model.state_dict(),
 						'optimizer_state_dict': optimizer.state_dict()}
-				torch.save(state, 'seti_model_cycle_0.0007_grey.pth')
+				torch.save(state, 'seti_model_cycle_0.0007_grey_pct_0.1.pth')
 				print("Epoch {} model saved!\n".format(epoch))
 				th = val_acc
 
