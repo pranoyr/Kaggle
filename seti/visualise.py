@@ -54,12 +54,12 @@ transform = A.Compose([
 	# A.Transpose(),
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2, border_mode=0,
                 rotate_limit= 20, value=0, mask_value=0),
-	# A.Cutout(num_holes=8, max_h_size=2, max_w_size=2, fill_value=0, p=0.5),
+	A.RandomBrightness(limit=0.6, p=0.5),
 	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
 	
 	# 
 	# A.RandomRotate90(),
-	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.4)
+	# A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.4)
 	# A.GridDropout(num_grid=3, mode=0, rotate=15)
 	# A.Normalize(mean=[-5.2037e-06, -1.4643e-04,  9.0275e-05], std = [0.9707, 0.9699, 0.9703], max_pixel_value=1, p=1.0),
 #	ToTensorV2(p=1.0)

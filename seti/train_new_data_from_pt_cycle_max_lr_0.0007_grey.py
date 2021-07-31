@@ -752,7 +752,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 		data, targets = data.to(device), targets.to(device)
 
 		inputs, targets_a, targets_b, lam = mixup_data(data, targets,
-													   0.2,  device)
+													   0.3,  device)
 		inputs, targets_a, targets_b = map(Variable, (inputs,
 													  targets_a, targets_b))
 		
@@ -810,6 +810,7 @@ def main():
 	random.seed(seed)
 	np.random.seed(seed)
 	torch.manual_seed(seed)
+	torch.cuda.manual_seed(seed)
 
 	use_cuda = torch.cuda.is_available()
 	device = torch.device("cuda:1" if use_cuda else "cpu")
@@ -819,11 +820,12 @@ def main():
 	A.OneOf([
 	A.HorizontalFlip(p=0.5),
 	A.VerticalFlip(p=0.5),
+	A.RandomBrightness(limit=0.6, p=0.5),
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2, border_mode=0,
                 rotate_limit= 20, value=0, mask_value=0),
 	
 	A.RandomResizedCrop(scale = [0.9, 1.0], p=1, height=512, width=512),
-	A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.4)
+	# A.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.4)
 	
 	]),
 	ToTensorV2(p=1.0)
