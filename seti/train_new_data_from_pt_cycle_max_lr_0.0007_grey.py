@@ -752,7 +752,7 @@ def train_epoch(model, data_loader, criterion, optimizer, epoch, device, schedul
 		data, targets = data.to(device), targets.to(device)
 
 		inputs, targets_a, targets_b, lam = mixup_data(data, targets,
-													   0.3,  device)
+													   0.1,  device)
 		inputs, targets_a, targets_b = map(Variable, (inputs,
 													  targets_a, targets_b))
 		
