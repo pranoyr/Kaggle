@@ -820,7 +820,7 @@ def main():
 	A.OneOf([
 	A.HorizontalFlip(p=0.5),
 	A.VerticalFlip(p=0.5),
-	A.RandomBrightness(limit=0.6, p=0.5),
+	qA.GridDropout( holes_number_x=10, holes_number_y=10, ratio=0.4)
 	A.ShiftScaleRotate(shift_limit= 0.2, scale_limit= 0.2, border_mode=0,
                 rotate_limit= 20, value=0, mask_value=0),
 	
